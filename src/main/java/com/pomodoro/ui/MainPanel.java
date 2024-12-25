@@ -5,12 +5,10 @@ import main.java.com.pomodoro.service.TaskManager;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.table.DefaultTableModel;
-import java.util.Vector;
-import java.util.Comparator;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainPanel extends JPanel implements TaskManager.TaskChangeListener {
+    private final TaskManager taskManager;
     private JTable taskTable;
     private DefaultTableModel tableModel;
     private JLabel timerLabel;
@@ -28,10 +26,9 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
     private int completedSessions = 0;
     private ButtonGroup filterGroup;
     private String currentFilter = "All"; // Add this field
-    private TaskManager taskManager;
 
-    public MainPanel() {
-        taskManager = new TaskManager();
+    public MainPanel(TaskManager taskManager) {
+        this.taskManager = taskManager;
         taskManager.addListener(this);
         setLayout(new BorderLayout(10, 10));
         initializeComponents();

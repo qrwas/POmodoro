@@ -5,15 +5,17 @@ import java.awt.*;
 import main.java.com.pomodoro.ui.MainPanel;
 import main.java.com.pomodoro.model.Settings;
 import main.java.com.pomodoro.ui.SettingsDialog;
+import main.java.com.pomodoro.di.ServiceContainer;
 
 public class MainApp extends JFrame {
+    private final ServiceContainer services;
     private JTabbedPane tabbedPane;
     private MainPanel mainPanel;
-    private Settings appSettings;
 
     public MainApp() {
-        appSettings = new Settings(); // Initialize with default settings
+        this.services = new ServiceContainer();
         initializeUI();
+        setupWindowListener();
     }
 
     private void initializeUI() {
@@ -29,6 +31,16 @@ public class MainApp extends JFrame {
         createTabbedPane();
 
         setVisible(true);
+    }
+
+    private void setupWindowListener() {
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                services.saveAll();
+                System.exit(0);
+            }
+        });
     }
 
     private void createMenuBar() {
@@ -57,12 +69,13 @@ public class MainApp extends JFrame {
 
     private void createTabbedPane() {
         tabbedPane = new JTabbedPane();
-        mainPanel = new MainPanel();
+        mainPanel = new MainPanel(services.getTaskManager());
+        Settings settings = services.getSettings();
         mainPanel.updateIntervals(
-            appSettings.getWorkInterval() / 60,
-            appSettings.getShortBreakInterval() / 60,
-            appSettings.getLongBreakInterval() / 60,
-            appSettings.getSessionsUntilLongBreak()
+            settings.getWorkInterval() / 60,
+            settings.getShortBreakInterval() / 60,
+            settings.getLongBreakInterval() / 60,
+            settings.getSessionsUntilLongBreak()
         );
         
         // Analytics tab
@@ -76,11 +89,12 @@ public class MainApp extends JFrame {
     }
 
     private void showSettings() {
+        Settings currentSettings = services.getSettings();
         SettingsDialog dialog = new SettingsDialog(
             this,
-            appSettings,
+            currentSettings,
             settings -> {
-                appSettings = settings;
+                services.getDataManager().saveSettings(settings);
                 mainPanel.updateIntervals(
                     settings.getWorkInterval() / 60,
                     settings.getShortBreakInterval() / 60,

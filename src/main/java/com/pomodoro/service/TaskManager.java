@@ -4,9 +4,15 @@ import main.java.com.pomodoro.model.Task;
 import java.util.*;
 
 public class TaskManager {
+    private final DataManager dataManager;
     private List<Task> tasks = new ArrayList<>();
     private Task currentActiveTask;
     private List<TaskChangeListener> listeners = new ArrayList<>();
+
+    public TaskManager(DataManager dataManager) {
+        this.dataManager = dataManager;
+        loadSavedTasks();
+    }
 
     public interface TaskChangeListener {
         void onTaskListChanged();
@@ -153,6 +159,15 @@ public class TaskManager {
             case "Low" -> 3;
             default -> 4;
         };
+    }
+
+    private void loadSavedTasks() {
+        tasks = dataManager.loadTasks();
+        notifyTaskListChanged();
+    }
+
+    public void saveTasks() {
+        dataManager.saveTasks(tasks);
     }
 
     private void notifyTaskListChanged() {
