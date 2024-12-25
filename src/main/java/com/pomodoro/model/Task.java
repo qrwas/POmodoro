@@ -5,6 +5,7 @@ public class Task {
     private int priority;
     private boolean completed;
     private boolean inProgress;
+    private int index; // Add index field
 
     public Task(String name, int priority) {
         this.name = name;
@@ -13,6 +14,10 @@ public class Task {
         this.inProgress = false;
     }
 
+    // Add index getter/setter
+    public int getIndex() { return index; }
+    public void setIndex(int index) { this.index = index; }
+    
     // Getters and setters
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
