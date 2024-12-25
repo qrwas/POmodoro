@@ -1,5 +1,6 @@
 package main.java.com.pomodoro.ui;
 
+import main.java.com.pomodoro.model.Settings;
 import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
@@ -11,20 +12,6 @@ public class SettingsDialog extends JDialog {
     private JTextField sessionsField;
     private final Consumer<Settings> onSave;
 
-    public static class Settings {
-        public int workInterval;
-        public int shortBreakInterval;
-        public int longBreakInterval;
-        public int sessionsUntilLongBreak;
-
-        public Settings(int workInterval, int shortBreakInterval, int longBreakInterval, int sessionsUntilLongBreak) {
-            this.workInterval = workInterval;
-            this.shortBreakInterval = shortBreakInterval;
-            this.longBreakInterval = longBreakInterval;
-            this.sessionsUntilLongBreak = sessionsUntilLongBreak;
-        }
-    }
-
     public SettingsDialog(JFrame parent, Settings currentSettings, Consumer<Settings> onSave) {
         super(parent, "Settings", true);
         this.onSave = onSave;
@@ -35,10 +22,10 @@ public class SettingsDialog extends JDialog {
         JPanel settingsPanel = new JPanel(new GridLayout(4, 2, 10, 10));
         settingsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        workField = new JTextField(String.valueOf(currentSettings.workInterval / 60));
-        shortBreakField = new JTextField(String.valueOf(currentSettings.shortBreakInterval / 60));
-        longBreakField = new JTextField(String.valueOf(currentSettings.longBreakInterval / 60));
-        sessionsField = new JTextField(String.valueOf(currentSettings.sessionsUntilLongBreak));
+        workField = new JTextField(String.valueOf(currentSettings.getWorkInterval() / 60));
+        shortBreakField = new JTextField(String.valueOf(currentSettings.getShortBreakInterval() / 60));
+        longBreakField = new JTextField(String.valueOf(currentSettings.getLongBreakInterval() / 60));
+        sessionsField = new JTextField(String.valueOf(currentSettings.getSessionsUntilLongBreak()));
         
         settingsPanel.add(new JLabel("Work Interval (minutes):"));
         settingsPanel.add(workField);

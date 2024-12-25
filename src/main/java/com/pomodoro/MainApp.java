@@ -3,13 +3,16 @@ package main.java.com.pomodoro;
 import javax.swing.*;
 import java.awt.*;
 import main.java.com.pomodoro.ui.MainPanel;
+import main.java.com.pomodoro.model.Settings;
 import main.java.com.pomodoro.ui.SettingsDialog;
 
 public class MainApp extends JFrame {
     private JTabbedPane tabbedPane;
     private MainPanel mainPanel;
+    private Settings appSettings;
 
     public MainApp() {
+        appSettings = new Settings(); // Initialize with default settings
         initializeUI();
     }
 
@@ -55,8 +58,12 @@ public class MainApp extends JFrame {
     private void createTabbedPane() {
         tabbedPane = new JTabbedPane();
         mainPanel = new MainPanel();
-        
-        // Main tab with new MainPanel
+        mainPanel.updateIntervals(
+            appSettings.getWorkInterval() / 60,
+            appSettings.getShortBreakInterval() / 60,
+            appSettings.getLongBreakInterval() / 60,
+            appSettings.getSessionsUntilLongBreak()
+        );
         
         // Analytics tab
         JPanel analyticsPanel = new JPanel();
@@ -69,11 +76,18 @@ public class MainApp extends JFrame {
     }
 
     private void showSettings() {
-        SettingsDialog.Settings currentSettings = mainPanel.getCurrentSettings();
         SettingsDialog dialog = new SettingsDialog(
             this,
-            currentSettings,
-            mainPanel::applySettings
+            appSettings,
+            settings -> {
+                appSettings = settings;
+                mainPanel.updateIntervals(
+                    settings.getWorkInterval() / 60,
+                    settings.getShortBreakInterval() / 60,
+                    settings.getLongBreakInterval() / 60,
+                    settings.getSessionsUntilLongBreak()
+                );
+            }
         );
         dialog.setVisible(true);
     }

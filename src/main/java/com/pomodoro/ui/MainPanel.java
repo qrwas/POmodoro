@@ -47,27 +47,6 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
         updateTableFromTasks();
     }
 
-    public SettingsDialog.Settings getCurrentSettings() {
-        return new SettingsDialog.Settings(
-            workInterval,
-            shortBreakInterval,
-            longBreakInterval,
-            sessionsUntilLongBreak
-        );
-    }
-
-    public void applySettings(SettingsDialog.Settings settings) {
-        workInterval = settings.workInterval;
-        shortBreakInterval = settings.shortBreakInterval;
-        longBreakInterval = settings.longBreakInterval;
-        sessionsUntilLongBreak = settings.sessionsUntilLongBreak;
-        
-        // Reset timer if needed
-        if (!pomodoroTimer.isRunning()) {
-            resetTimer();
-        }
-    }
-
     private void initializeComponents() {
         setLayout(new BorderLayout(10, 10));
         
@@ -190,7 +169,7 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
         this.sessionsUntilLongBreak = sessions;
         
         if (!pomodoroTimer.isRunning()) {
-            timeLeft = workInterval;
+            timeLeft = isWorkSession ? workInterval : shortBreakInterval;
             timerLabel.setText(formatTime(timeLeft));
         }
     }
