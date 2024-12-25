@@ -24,14 +24,9 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
     private int timeLeft = workInterval;
     private boolean isWorkSession = true;
     private Task currentTask = null; // Replace currentActiveTask with Task reference
-    private JTextField shortBreakField; // Add this field
-    private java.util.List<Task> tasks = new ArrayList<>(); // Add this field
     private int sessionsUntilLongBreak = 4; // Default value
     private int completedSessions = 0;
-    private JTextField sessionsField;
-    private JTextField longBreakField;
     private ButtonGroup filterGroup;
-    private DefaultTableModel originalTableModel;
     private String currentFilter = "All"; // Add this field
     private TaskManager taskManager;
 
@@ -50,6 +45,27 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
     @Override
     public void onTaskStatusChanged(Task task) {
         updateTableFromTasks();
+    }
+
+    public SettingsDialog.Settings getCurrentSettings() {
+        return new SettingsDialog.Settings(
+            workInterval,
+            shortBreakInterval,
+            longBreakInterval,
+            sessionsUntilLongBreak
+        );
+    }
+
+    public void applySettings(SettingsDialog.Settings settings) {
+        workInterval = settings.workInterval;
+        shortBreakInterval = settings.shortBreakInterval;
+        longBreakInterval = settings.longBreakInterval;
+        sessionsUntilLongBreak = settings.sessionsUntilLongBreak;
+        
+        // Reset timer if needed
+        if (!pomodoroTimer.isRunning()) {
+            resetTimer();
+        }
     }
 
     private void initializeComponents() {
@@ -85,32 +101,8 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
         gbc.gridy = 1;
         timerPanel.add(buttonPanel, gbc);
         
-        // Interval Settings Panel
-        JPanel intervalPanel = new JPanel(new GridLayout(4, 2, 10, 10)); // Changed to 4 rows
-        intervalPanel.setBorder(BorderFactory.createTitledBorder("Interval Settings"));
-        
-        JLabel workLabel = new JLabel("Work Interval (minutes):");
-        JLabel shortBreakLabel = new JLabel("Short Break Interval (minutes):");
-        JLabel longBreakLabel = new JLabel("Long Break Interval (minutes):");
-        JLabel sessionsLabel = new JLabel("Sessions until long break:");
-        
-        JTextField workField = new JTextField("25");
-        shortBreakField = new JTextField("5"); // Store reference to field
-        longBreakField = new JTextField("15");
-        sessionsField = new JTextField("4");
-        
-        intervalPanel.add(workLabel);
-        intervalPanel.add(workField);
-        intervalPanel.add(shortBreakLabel);
-        intervalPanel.add(shortBreakField);
-        intervalPanel.add(longBreakLabel);
-        intervalPanel.add(longBreakField);
-        intervalPanel.add(sessionsLabel);
-        intervalPanel.add(sessionsField);
-
         // Add timer and settings to top container
         topContainer.add(timerPanel, BorderLayout.NORTH);
-        topContainer.add(intervalPanel, BorderLayout.CENTER);
 
         // Task Panel with sorting
         JPanel taskPanel = new JPanel(new BorderLayout(0, 10));
@@ -175,12 +167,6 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
         setupTaskActions(addButton, editButton, deleteButton);
         setupSortActions(sortByNameButton, sortByPriorityButton);
 
-        // Interval settings actions
-        workField.addActionListener(e -> workInterval = Integer.parseInt(workField.getText()) * 60);
-        shortBreakField.addActionListener(e -> shortBreakInterval = Integer.parseInt(shortBreakField.getText()) * 60);
-        longBreakField.addActionListener(e -> longBreakInterval = Integer.parseInt(longBreakField.getText()) * 60);
-        sessionsField.addActionListener(e -> sessionsUntilLongBreak = Integer.parseInt(sessionsField.getText()));
-
         // Add filter actions with currentFilter tracking
         allTasksButton.addActionListener(e -> {
             currentFilter = "All";
@@ -194,6 +180,19 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
             currentFilter = "Completed";
             filterTasks(currentFilter);
         });
+    }
+
+    // Method to update intervals from SettingsDialog
+    public void updateIntervals(int workMins, int shortBreakMins, int longBreakMins, int sessions) {
+        this.workInterval = workMins * 60;
+        this.shortBreakInterval = shortBreakMins * 60;
+        this.longBreakInterval = longBreakMins * 60;
+        this.sessionsUntilLongBreak = sessions;
+        
+        if (!pomodoroTimer.isRunning()) {
+            timeLeft = workInterval;
+            timerLabel.setText(formatTime(timeLeft));
+        }
     }
 
     private void setupTimerActions() {
@@ -335,17 +334,13 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
                     completedSessions++;
                 }
                 
-                // Determine break type
                 boolean isLongBreak = completedSessions >= sessionsUntilLongBreak;
                 if (isLongBreak) {
-                    completedSessions = 0; // Reset counter after long break
+                    completedSessions = 0;
                 }
                 
-                int breakDuration = isLongBreak ? 
-                    Integer.parseInt(longBreakField.getText()) * 60 : 
-                    Integer.parseInt(shortBreakField.getText()) * 60;
+                int breakDuration = isLongBreak ? longBreakInterval : shortBreakInterval;
                 
-                // Show break dialog
                 BreakDialog breakDialog = new BreakDialog(
                     (JFrame) SwingUtilities.getWindowAncestor(this),
                     breakDuration,
@@ -353,13 +348,8 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
                 );
                 breakDialog.setVisible(true);
                 
-                if (breakDialog.wasBreakSkipped()) {
-                    timeLeft = workInterval;
-                    isWorkSession = true;
-                } else {
-                    timeLeft = workInterval;
-                    isWorkSession = true;
-                }
+                timeLeft = workInterval;
+                isWorkSession = true;
             } else {
                 timeLeft = workInterval;
                 isWorkSession = true;
@@ -372,47 +362,6 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
         timeLeft = isWorkSession ? workInterval : shortBreakInterval;
         timerLabel.setText(formatTime(timeLeft));
         pomodoroTimer.stop();
-    }
-
-    private int getPriorityValue(String priority) {
-        switch (priority) {
-            case "High": return 1;
-            case "Medium": return 2;
-            case "Low": return 3;
-            default: return 4;
-        }
-    }
-
-    private String getPriorityLabel(int priority) {
-        switch (priority) {
-            case 1: return "High";
-            case 2: return "Medium";
-            case 3: return "Low";
-            default: return "Unknown";
-        }
-    }
-
-    private void updateTaskStatus(Task task, String status) {
-        if (task != null) {
-            switch (status) {
-                case "In Progress":
-                    task.setInProgress(true);
-                    task.setCompleted(false);
-                    break;
-                case "Completed":
-                    task.setInProgress(false);
-                    task.setCompleted(true);
-                    break;
-                case "Paused":
-                    task.setInProgress(false);
-                    break;
-                case "Not Started":
-                    task.setInProgress(false);
-                    task.setCompleted(false);
-                    break;
-            }
-            filterTasks(currentFilter);
-        }
     }
 
     private String formatTime(int seconds) {
