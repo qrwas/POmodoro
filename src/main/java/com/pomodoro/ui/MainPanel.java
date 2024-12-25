@@ -221,16 +221,27 @@ public class MainPanel extends JPanel {
                     tableModel.setValueAt("Completed", currentActiveTask, 2);
                     currentActiveTask = -1;
                 }
-                JOptionPane.showMessageDialog(this, "Work session finished! Time for a break.");
-                timeLeft = shortBreakInterval;
-                isWorkSession = false;
+                
+                // Show break dialog
+                BreakDialog breakDialog = new BreakDialog(
+                    (JFrame) SwingUtilities.getWindowAncestor(this),
+                    shortBreakInterval
+                );
+                breakDialog.setVisible(true);
+                
+                // Check if break was skipped
+                if (breakDialog.wasBreakSkipped()) {
+                    timeLeft = workInterval;
+                    isWorkSession = true;
+                } else {
+                    timeLeft = workInterval;
+                    isWorkSession = true;
+                }
             } else {
-                JOptionPane.showMessageDialog(this, "Break finished! Time to work.");
                 timeLeft = workInterval;
                 isWorkSession = true;
             }
             timerLabel.setText(formatTime(timeLeft));
-            pomodoroTimer.start();
         }
     }
 
