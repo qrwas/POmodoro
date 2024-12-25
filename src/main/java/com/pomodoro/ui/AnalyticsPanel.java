@@ -2,22 +2,20 @@ package main.java.com.pomodoro.ui;
 
 import main.java.com.pomodoro.model.*;
 import main.java.com.pomodoro.service.AnalyticsService;
-import main.java.com.pomodoro.service.TaskManager;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.*;
 
 public class AnalyticsPanel extends JPanel implements AnalyticsService.AnalyticsListener {
-    private final TaskManager taskManager;
     private JTable statsTable;
     private DefaultTableModel tableModel;
     private JLabel totalPomodorosLabel;
 
-    public AnalyticsPanel(TaskManager taskManager, AnalyticsService analyticsService) {
-        this.taskManager = taskManager;
+    public AnalyticsPanel(AnalyticsService analyticsService) {
         analyticsService.addListener(this);
         initializeComponents();
+        updateDisplay(analyticsService.getTaskStats(), analyticsService.getTotalPomodoros()); // Initialize table with saved data
     }
 
     private void initializeComponents() {

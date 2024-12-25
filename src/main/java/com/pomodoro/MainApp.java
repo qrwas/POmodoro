@@ -73,8 +73,7 @@ public class MainApp extends JFrame {
     private void createTabbedPane() {
         tabbedPane = new JTabbedPane();
         mainPanel = new MainPanel(services.getTaskManager());
-        analyticsPanel = new AnalyticsPanel(
-            services.getTaskManager(), 
+        analyticsPanel = new AnalyticsPanel( 
             services.getAnalyticsService()
         );
         
