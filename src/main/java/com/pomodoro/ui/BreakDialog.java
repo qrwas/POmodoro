@@ -11,7 +11,7 @@ public class BreakDialog extends JDialog {
     private int timeLeft;
     private boolean breakSkipped = false;
 
-    public BreakDialog(JFrame parent, int breakDuration) {
+    public BreakDialog(JFrame parent, int breakDuration, boolean isLongBreak) {
         super(parent, "Break Time!", true);
         this.timeLeft = breakDuration;
         
@@ -22,7 +22,10 @@ public class BreakDialog extends JDialog {
         timerLabel.setFont(new Font("Arial", Font.BOLD, 48));
         
         // Message
-        JLabel messageLabel = new JLabel("Time for a break! Relax and stretch.", SwingConstants.CENTER);
+        String messageText = isLongBreak ? 
+            "Time for a long break! Take a walk or do some exercise." :
+            "Time for a short break! Relax and stretch.";
+        JLabel messageLabel = new JLabel(messageText, SwingConstants.CENTER);
         messageLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         
         // Skip button

@@ -24,6 +24,10 @@ public class MainPanel extends JPanel {
     private int currentActiveTask = -1; // Add this field to track active task
     private JTextField shortBreakField; // Add this field
     private java.util.List<Task> tasks = new ArrayList<>(); // Add this field
+    private int sessionsUntilLongBreak = 4; // Default value
+    private int completedSessions = 0;
+    private JTextField sessionsField;
+    private JTextField longBreakField;
 
     public MainPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -64,16 +68,18 @@ public class MainPanel extends JPanel {
         timerPanel.add(buttonPanel, gbc);
         
         // Interval Settings Panel
-        JPanel intervalPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JPanel intervalPanel = new JPanel(new GridLayout(4, 2, 10, 10)); // Changed to 4 rows
         intervalPanel.setBorder(BorderFactory.createTitledBorder("Interval Settings"));
         
         JLabel workLabel = new JLabel("Work Interval (minutes):");
         JLabel shortBreakLabel = new JLabel("Short Break Interval (minutes):");
         JLabel longBreakLabel = new JLabel("Long Break Interval (minutes):");
+        JLabel sessionsLabel = new JLabel("Sessions until long break:");
         
         JTextField workField = new JTextField("25");
         shortBreakField = new JTextField("5"); // Store reference to field
-        JTextField longBreakField = new JTextField("15");
+        longBreakField = new JTextField("15");
+        sessionsField = new JTextField("4");
         
         intervalPanel.add(workLabel);
         intervalPanel.add(workField);
@@ -81,6 +87,8 @@ public class MainPanel extends JPanel {
         intervalPanel.add(shortBreakField);
         intervalPanel.add(longBreakLabel);
         intervalPanel.add(longBreakField);
+        intervalPanel.add(sessionsLabel);
+        intervalPanel.add(sessionsField);
 
         // Add timer and settings to top container
         topContainer.add(timerPanel, BorderLayout.NORTH);
@@ -133,6 +141,7 @@ public class MainPanel extends JPanel {
         workField.addActionListener(e -> workInterval = Integer.parseInt(workField.getText()) * 60);
         shortBreakField.addActionListener(e -> shortBreakInterval = Integer.parseInt(shortBreakField.getText()) * 60);
         longBreakField.addActionListener(e -> longBreakInterval = Integer.parseInt(longBreakField.getText()) * 60);
+        sessionsField.addActionListener(e -> sessionsUntilLongBreak = Integer.parseInt(sessionsField.getText()));
     }
 
     private void setupTimerActions() {
@@ -229,19 +238,27 @@ public class MainPanel extends JPanel {
                 if (currentActiveTask != -1) {
                     updateTaskStatus(currentActiveTask, "Completed");
                     currentActiveTask = -1;
+                    completedSessions++;
                 }
                 
-                // Use current value from shortBreakField
-                int currentBreakDuration = Integer.parseInt(shortBreakField.getText()) * 60;
+                // Determine break type
+                boolean isLongBreak = completedSessions >= sessionsUntilLongBreak;
+                if (isLongBreak) {
+                    completedSessions = 0; // Reset counter after long break
+                }
                 
-                // Show break dialog with current duration
+                int breakDuration = isLongBreak ? 
+                    Integer.parseInt(longBreakField.getText()) * 60 : 
+                    Integer.parseInt(shortBreakField.getText()) * 60;
+                
+                // Show break dialog
                 BreakDialog breakDialog = new BreakDialog(
                     (JFrame) SwingUtilities.getWindowAncestor(this),
-                    currentBreakDuration
+                    breakDuration,
+                    isLongBreak
                 );
                 breakDialog.setVisible(true);
                 
-                // Check if break was skipped
                 if (breakDialog.wasBreakSkipped()) {
                     timeLeft = workInterval;
                     isWorkSession = true;
