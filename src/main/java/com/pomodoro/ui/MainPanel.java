@@ -1,10 +1,12 @@
 package main.java.com.pomodoro.ui;
 
+import main.java.com.pomodoro.model.Task;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.Vector;
 import java.util.Comparator;
+import java.util.ArrayList;
 
 public class MainPanel extends JPanel {
     private JTable taskTable;
@@ -20,6 +22,8 @@ public class MainPanel extends JPanel {
     private int timeLeft = workInterval;
     private boolean isWorkSession = true;
     private int currentActiveTask = -1; // Add this field to track active task
+    private JTextField shortBreakField; // Add this field
+    private java.util.List<Task> tasks = new ArrayList<>(); // Add this field
 
     public MainPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -68,7 +72,7 @@ public class MainPanel extends JPanel {
         JLabel longBreakLabel = new JLabel("Long Break Interval (minutes):");
         
         JTextField workField = new JTextField("25");
-        JTextField shortBreakField = new JTextField("5");
+        shortBreakField = new JTextField("5"); // Store reference to field
         JTextField longBreakField = new JTextField("15");
         
         intervalPanel.add(workLabel);
@@ -137,12 +141,17 @@ public class MainPanel extends JPanel {
         startButton.addActionListener(e -> {
             int selectedRow = taskTable.getSelectedRow();
             if (selectedRow != -1) {
+                String currentStatus = (String) tableModel.getValueAt(selectedRow, 2);
+                if ("Completed".equals(currentStatus)) {
+                    JOptionPane.showMessageDialog(this, "Cannot start a completed task!");
+                    return;
+                }
                 if (currentActiveTask != -1 && currentActiveTask != selectedRow) {
                     JOptionPane.showMessageDialog(this, "Another task is already in progress!");
                     return;
                 }
                 currentActiveTask = selectedRow;
-                tableModel.setValueAt("In Progress", selectedRow, 2);
+                updateTaskStatus(selectedRow, "In Progress");
                 pomodoroTimer.start();
             } else {
                 JOptionPane.showMessageDialog(this, "Please select a task to start.");
@@ -151,14 +160,14 @@ public class MainPanel extends JPanel {
 
         stopButton.addActionListener(e -> {
             if (currentActiveTask != -1) {
-                tableModel.setValueAt("Paused", currentActiveTask, 2);
+                updateTaskStatus(currentActiveTask, "Paused");
                 pomodoroTimer.stop();
             }
         });
 
         resetButton.addActionListener(e -> {
             if (currentActiveTask != -1) {
-                tableModel.setValueAt("Not Started", currentActiveTask, 2);
+                updateTaskStatus(currentActiveTask, "Not Started");
                 currentActiveTask = -1;
             }
             resetTimer();
@@ -218,14 +227,17 @@ public class MainPanel extends JPanel {
             pomodoroTimer.stop();
             if (isWorkSession) {
                 if (currentActiveTask != -1) {
-                    tableModel.setValueAt("Completed", currentActiveTask, 2);
+                    updateTaskStatus(currentActiveTask, "Completed");
                     currentActiveTask = -1;
                 }
                 
-                // Show break dialog
+                // Use current value from shortBreakField
+                int currentBreakDuration = Integer.parseInt(shortBreakField.getText()) * 60;
+                
+                // Show break dialog with current duration
                 BreakDialog breakDialog = new BreakDialog(
                     (JFrame) SwingUtilities.getWindowAncestor(this),
-                    shortBreakInterval
+                    currentBreakDuration
                 );
                 breakDialog.setVisible(true);
                 
@@ -254,18 +266,25 @@ public class MainPanel extends JPanel {
     private void addNewTask() {
         String name = JOptionPane.showInputDialog(this, "Enter task name:");
         if (name != null && !name.trim().isEmpty()) {
-            String[] priority = {"High", "Medium", "Low"};
+            String[] priorityLabels = {"High", "Medium", "Low"};
             String selectedPriority = (String) JOptionPane.showInputDialog(
                 this,
                 "Select priority:",
                 "Task Priority",
                 JOptionPane.QUESTION_MESSAGE,
                 null,
-                priority,
-                priority[1]
+                priorityLabels,
+                priorityLabels[1]
             );
             if (selectedPriority != null) {
-                tableModel.addRow(new Object[]{name, selectedPriority, "Not Started"});
+                int priorityValue = getPriorityValue(selectedPriority);
+                Task task = new Task(name, priorityValue);
+                tasks.add(task);
+                tableModel.addRow(new Object[]{
+                    task.getName(), 
+                    getPriorityLabel(task.getPriority()), 
+                    task.isCompleted() ? "Completed" : "Not Started"
+                });
             }
         }
     }
@@ -273,9 +292,10 @@ public class MainPanel extends JPanel {
     private void editSelectedTask() {
         int selectedRow = taskTable.getSelectedRow();
         if (selectedRow != -1) {
-            String name = JOptionPane.showInputDialog(this, "Enter new task name:", 
-                taskTable.getValueAt(selectedRow, 0));
+            Task task = tasks.get(selectedRow);
+            String name = JOptionPane.showInputDialog(this, "Enter new task name:", task.getName());
             if (name != null && !name.trim().isEmpty()) {
+                task.setName(name);
                 tableModel.setValueAt(name, selectedRow, 0);
             }
         }
@@ -284,7 +304,34 @@ public class MainPanel extends JPanel {
     private void deleteSelectedTask() {
         int selectedRow = taskTable.getSelectedRow();
         if (selectedRow != -1) {
+            String currentStatus = (String) tableModel.getValueAt(selectedRow, 2);
+            if ("In Progress".equals(currentStatus)) {
+                JOptionPane.showMessageDialog(this, "Cannot delete a task that is in progress!");
+                return;
+            }
+            if (selectedRow == currentActiveTask) {
+                JOptionPane.showMessageDialog(this, "Cannot delete the active task!");
+                return;
+            }
+            tasks.remove(selectedRow);
             tableModel.removeRow(selectedRow);
+        }
+    }
+
+    private String getPriorityLabel(int priority) {
+        switch (priority) {
+            case 1: return "High";
+            case 2: return "Medium";
+            case 3: return "Low";
+            default: return "Unknown";
+        }
+    }
+
+    private void updateTaskStatus(int row, String status) {
+        if (row >= 0 && row < tasks.size()) {
+            Task task = tasks.get(row);
+            task.setCompleted(status.equals("Completed"));
+            tableModel.setValueAt(status, row, 2);
         }
     }
 
