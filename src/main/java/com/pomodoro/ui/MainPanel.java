@@ -28,6 +28,8 @@ public class MainPanel extends JPanel {
     private int completedSessions = 0;
     private JTextField sessionsField;
     private JTextField longBreakField;
+    private ButtonGroup filterGroup;
+    private DefaultTableModel originalTableModel;
 
     public MainPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -101,9 +103,11 @@ public class MainPanel extends JPanel {
         );
         taskTable = new JTable(tableModel);
         
-        // Task control panel with sort buttons
+        // Task control panel with sort and filter buttons
         JPanel taskControlPanel = new JPanel(new BorderLayout());
+        JPanel leftControlPanel = new JPanel(new GridLayout(2, 1, 5, 5));
         JPanel sortPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         JPanel taskButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         
         // Sort buttons
@@ -113,7 +117,25 @@ public class MainPanel extends JPanel {
         sortPanel.add(new JLabel("Sort: "));
         sortPanel.add(sortByNameButton);
         sortPanel.add(sortByPriorityButton);
+
+        // Filter buttons
+        filterPanel.add(new JLabel("Filter: "));
+        filterGroup = new ButtonGroup();
+        JRadioButton allTasksButton = new JRadioButton("All", true);
+        JRadioButton activeTasksButton = new JRadioButton("Active");
+        JRadioButton completedTasksButton = new JRadioButton("Completed");
         
+        filterGroup.add(allTasksButton);
+        filterGroup.add(activeTasksButton);
+        filterGroup.add(completedTasksButton);
+        
+        filterPanel.add(allTasksButton);
+        filterPanel.add(activeTasksButton);
+        filterPanel.add(completedTasksButton);
+
+        leftControlPanel.add(sortPanel);
+        leftControlPanel.add(filterPanel);
+
         // Task buttons
         JButton addButton = new JButton("Add Task");
         JButton editButton = new JButton("Edit Task");
@@ -123,7 +145,7 @@ public class MainPanel extends JPanel {
         taskButtonPanel.add(editButton);
         taskButtonPanel.add(deleteButton);
 
-        taskControlPanel.add(sortPanel, BorderLayout.WEST);
+        taskControlPanel.add(leftControlPanel, BorderLayout.WEST);
         taskControlPanel.add(taskButtonPanel, BorderLayout.EAST);
         
         taskPanel.add(new JScrollPane(taskTable), BorderLayout.CENTER);
@@ -142,6 +164,11 @@ public class MainPanel extends JPanel {
         shortBreakField.addActionListener(e -> shortBreakInterval = Integer.parseInt(shortBreakField.getText()) * 60);
         longBreakField.addActionListener(e -> longBreakInterval = Integer.parseInt(longBreakField.getText()) * 60);
         sessionsField.addActionListener(e -> sessionsUntilLongBreak = Integer.parseInt(sessionsField.getText()));
+
+        // Add filter actions
+        allTasksButton.addActionListener(e -> filterTasks("All"));
+        activeTasksButton.addActionListener(e -> filterTasks("Active"));
+        completedTasksButton.addActionListener(e -> filterTasks("Completed"));
     }
 
     private void setupTimerActions() {
@@ -195,37 +222,60 @@ public class MainPanel extends JPanel {
     }
 
     private void sortTasks(int columnIndex) {
-        Vector<Vector> dataVector = tableModel.getDataVector();
-        
-        Comparator<Vector> comparator = (row1, row2) -> {
-            String val1 = row1.get(columnIndex).toString();
-            String val2 = row2.get(columnIndex).toString();
+        // First, sort tasks list
+        tasks.sort((task1, task2) -> {
+            // Always put completed tasks at the bottom
+            if (task1.isCompleted() && !task2.isCompleted()) return 1;
+            if (!task1.isCompleted() && task2.isCompleted()) return -1;
             
-            if (columnIndex == 1) { // Priority sorting
-                // Custom priority order: High > Medium > Low
-                return comparePriorities(val1, val2);
+            // If both tasks have same completion status, sort by column
+            if (columnIndex == 0) {
+                return task1.getName().compareTo(task2.getName());
+            } else if (columnIndex == 1) {
+                return Integer.compare(task1.getPriority(), task2.getPriority());
             }
-            
-            return val1.compareTo(val2);
-        };
-        
-        dataVector.sort(comparator);
-        tableModel.fireTableDataChanged();
+            return 0;
+        });
+
+        // Update table to reflect new order
+        updateTableFromTasks();
     }
 
-    private int comparePriorities(String p1, String p2) {
-        int p1Value = getPriorityValue(p1);
-        int p2Value = getPriorityValue(p2);
-        return Integer.compare(p1Value, p2Value);
-    }
-
-    private int getPriorityValue(String priority) {
-        switch (priority) {
-            case "High": return 1;
-            case "Medium": return 2;
-            case "Low": return 3;
-            default: return 4;
+    private void updateTableFromTasks() {
+        tableModel.setRowCount(0);
+        for (Task task : tasks) {
+            tableModel.addRow(new Object[]{
+                task.getName(),
+                getPriorityLabel(task.getPriority()),
+                getTaskStatus(task)
+            });
         }
+    }
+
+    private void filterTasks(String filterType) {
+        tableModel.setRowCount(0);
+        for (Task task : tasks) {
+            boolean shouldAdd = switch (filterType) {
+                case "All" -> true;
+                case "Active" -> !task.isCompleted();
+                case "Completed" -> task.isCompleted();
+                default -> true;
+            };
+            
+            if (shouldAdd) {
+                tableModel.addRow(new Object[]{
+                    task.getName(),
+                    getPriorityLabel(task.getPriority()),
+                    getTaskStatus(task)
+                });
+            }
+        }
+    }
+
+    private String getTaskStatus(Task task) {
+        if (task.isCompleted()) return "Completed";
+        if (task.isInProgress()) return "In Progress";
+        return "Not Started";
     }
 
     private void updateTimer() {
@@ -332,6 +382,15 @@ public class MainPanel extends JPanel {
             }
             tasks.remove(selectedRow);
             tableModel.removeRow(selectedRow);
+        }
+    }
+
+    private int getPriorityValue(String priority) {
+        switch (priority) {
+            case "High": return 1;
+            case "Medium": return 2;
+            case "Low": return 3;
+            default: return 4;
         }
     }
 
