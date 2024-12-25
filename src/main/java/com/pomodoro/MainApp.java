@@ -6,11 +6,14 @@ import main.java.com.pomodoro.ui.MainPanel;
 import main.java.com.pomodoro.model.Settings;
 import main.java.com.pomodoro.ui.SettingsDialog;
 import main.java.com.pomodoro.di.ServiceContainer;
+import main.java.com.pomodoro.ui.AnalyticsPanel;
+import main.java.com.pomodoro.service.AnalyticsService;
 
 public class MainApp extends JFrame {
     private final ServiceContainer services;
     private JTabbedPane tabbedPane;
     private MainPanel mainPanel;
+    private AnalyticsPanel analyticsPanel;
 
     public MainApp() {
         this.services = new ServiceContainer();
@@ -70,6 +73,11 @@ public class MainApp extends JFrame {
     private void createTabbedPane() {
         tabbedPane = new JTabbedPane();
         mainPanel = new MainPanel(services.getTaskManager());
+        analyticsPanel = new AnalyticsPanel(
+            services.getTaskManager(), 
+            services.getAnalyticsService()
+        );
+        
         Settings settings = services.getSettings();
         mainPanel.updateIntervals(
             settings.getWorkInterval() / 60,
@@ -77,14 +85,9 @@ public class MainApp extends JFrame {
             settings.getLongBreakInterval() / 60,
             settings.getSessionsUntilLongBreak()
         );
-        
-        // Analytics tab
-        JPanel analyticsPanel = new JPanel();
-        analyticsPanel.setLayout(new BorderLayout());
 
         tabbedPane.addTab("Main", mainPanel);
         tabbedPane.addTab("Analytics", analyticsPanel);
-
         add(tabbedPane);
     }
 

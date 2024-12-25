@@ -9,6 +9,7 @@ public class DataManager {
     private static final String DATA_DIR = "pomodoro_data";
     private static final String TASKS_FILE = "tasks.json";
     private static final String SETTINGS_FILE = "settings.json";
+    private static final String ANALYTICS_FILE = "analytics.json";
     
     public DataManager() {
         createDataDirectory();
@@ -55,6 +56,24 @@ public class DataManager {
             return JsonConverter.jsonToSettings(json);
         } catch (IOException e) {
             return new Settings();
+        }
+    }
+
+    public void saveAnalytics(Map<String, TaskStats> taskStats, int totalPomodoros) {
+        try {
+            String json = JsonConverter.analyticsToJson(taskStats, totalPomodoros);
+            Files.writeString(Path.of(DATA_DIR, ANALYTICS_FILE), json);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public AnalyticsData loadAnalytics() {
+        try {
+            String json = Files.readString(Path.of(DATA_DIR, ANALYTICS_FILE));
+            return JsonConverter.jsonToAnalytics(json);
+        } catch (IOException e) {
+            return new AnalyticsData(new HashMap<>(), 0);
         }
     }
 }

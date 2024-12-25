@@ -5,12 +5,14 @@ import java.util.*;
 
 public class TaskManager {
     private final DataManager dataManager;
+    private final AnalyticsService analyticsService;
     private List<Task> tasks = new ArrayList<>();
     private Task currentActiveTask;
     private List<TaskChangeListener> listeners = new ArrayList<>();
 
-    public TaskManager(DataManager dataManager) {
+    public TaskManager(DataManager dataManager, AnalyticsService analyticsService) {
         this.dataManager = dataManager;
+        this.analyticsService = analyticsService;
         loadSavedTasks();
     }
 
@@ -65,17 +67,23 @@ public class TaskManager {
         notifyTaskStatusChanged(task);
     }
 
-    public void startTask(Task task) {
+    public void startTask(Task task, int duration) {
         if (task.isCompleted()) {
             throw new IllegalStateException("Cannot start a completed task");
         }
         if (currentActiveTask != null && currentActiveTask != task) {
             throw new IllegalStateException("Another task is already in progress");
         }
+        task.setPlannedDuration(duration);
         currentActiveTask = task;
         task.setInProgress(true);
         task.setCompleted(false);
         notifyTaskStatusChanged(task);
+    }
+
+    // Overload for backward compatibility
+    public void startTask(Task task) {
+        startTask(task, 25 * 60); // default 25 minutes
     }
 
     public void pauseTask(Task task) {
@@ -90,6 +98,7 @@ public class TaskManager {
             currentActiveTask = null;
         }
         notifyTaskStatusChanged(task);
+        analyticsService.recordPomodoro(task, task.getPlannedDuration());
     }
 
     public void resetTask(Task task) {

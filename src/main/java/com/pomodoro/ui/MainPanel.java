@@ -180,8 +180,9 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
             if (selectedRow != -1) {
                 Task selectedTask = getTaskForTableRow(selectedRow);
                 try {
-                    taskManager.startTask(selectedTask);
+                    taskManager.startTask(selectedTask, workInterval);
                     currentTask = selectedTask;
+                    timeLeft = workInterval;
                     pomodoroTimer.start();
                 } catch (IllegalStateException ex) {
                     JOptionPane.showMessageDialog(this, ex.getMessage());
@@ -304,12 +305,10 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
             timerLabel.setText(formatTime(timeLeft));
         } else {
             pomodoroTimer.stop();
-            if (isWorkSession) {
-                if (currentTask != null) {
-                    taskManager.completeTask(currentTask);
-                    currentTask = null;
-                    completedSessions++;
-                }
+            if (isWorkSession && currentTask != null) {
+                taskManager.completeTask(currentTask);
+                currentTask = null;
+                completedSessions++;
                 
                 boolean isLongBreak = completedSessions >= sessionsUntilLongBreak;
                 if (isLongBreak) {
