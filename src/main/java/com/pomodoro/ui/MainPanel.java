@@ -32,6 +32,7 @@ public class MainPanel extends JPanel implements TaskManager.TaskChangeListener 
         taskManager.addListener(this);
         setLayout(new BorderLayout(10, 10));
         initializeComponents();
+        updateTableFromTasks(); // Add initial table update
     }
 
     @Override

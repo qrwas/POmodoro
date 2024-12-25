@@ -1,0 +1,6 @@
+{
+  "workInterval": 1500,
+  "shortBreakInterval": 300,
+  "longBreakInterval": 900,
+  "sessionsUntilLongBreak": 4
+}
