@@ -1,7 +1,8 @@
-package com.pomodoro;
+package main.java.com.pomodoro;
 
 import javax.swing.*;
 import java.awt.*;
+import main.java.com.pomodoro.ui.MainPanel;
 
 public class MainApp extends JFrame {
     private JTabbedPane tabbedPane;
@@ -46,9 +47,8 @@ public class MainApp extends JFrame {
     private void createTabbedPane() {
         tabbedPane = new JTabbedPane();
         
-        // Main tab
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
+        // Main tab with new MainPanel
+        MainPanel mainPanel = new MainPanel();
         
         // Analytics tab
         JPanel analyticsPanel = new JPanel();
