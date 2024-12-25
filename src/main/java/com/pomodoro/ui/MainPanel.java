@@ -141,8 +141,8 @@ public class MainPanel extends JPanel {
         startButton.addActionListener(e -> {
             int selectedRow = taskTable.getSelectedRow();
             if (selectedRow != -1) {
-                String currentStatus = (String) tableModel.getValueAt(selectedRow, 2);
-                if ("Completed".equals(currentStatus)) {
+                Task selectedTask = tasks.get(selectedRow);
+                if (selectedTask.isCompleted()) {
                     JOptionPane.showMessageDialog(this, "Cannot start a completed task!");
                     return;
                 }
@@ -304,8 +304,8 @@ public class MainPanel extends JPanel {
     private void deleteSelectedTask() {
         int selectedRow = taskTable.getSelectedRow();
         if (selectedRow != -1) {
-            String currentStatus = (String) tableModel.getValueAt(selectedRow, 2);
-            if ("In Progress".equals(currentStatus)) {
+            Task selectedTask = tasks.get(selectedRow);
+            if (selectedTask.isInProgress()) {
                 JOptionPane.showMessageDialog(this, "Cannot delete a task that is in progress!");
                 return;
             }
@@ -330,7 +330,23 @@ public class MainPanel extends JPanel {
     private void updateTaskStatus(int row, String status) {
         if (row >= 0 && row < tasks.size()) {
             Task task = tasks.get(row);
-            task.setCompleted(status.equals("Completed"));
+            switch (status) {
+                case "In Progress":
+                    task.setInProgress(true);
+                    task.setCompleted(false);
+                    break;
+                case "Completed":
+                    task.setInProgress(false);
+                    task.setCompleted(true);
+                    break;
+                case "Paused":
+                    task.setInProgress(false);
+                    break;
+                case "Not Started":
+                    task.setInProgress(false);
+                    task.setCompleted(false);
+                    break;
+            }
             tableModel.setValueAt(status, row, 2);
         }
     }
