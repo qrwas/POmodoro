@@ -30,9 +30,8 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         summaryPanel.add(totalPomodorosLabel);
 
         // Table Panel
-        JPanel tablePanel = new JPanel(new BorderLayout());
         tableModel = new DefaultTableModel(
-            new String[]{"Task", "Completed Pomodoros", "Total Time"}, 
+            new String[]{"Task", "Total Time"}, 
             0
         );
         statsTable = new JTable(tableModel);
@@ -53,10 +52,8 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
 
         tableModel.setRowCount(0);
         stats.values().stream()
-            .sorted((s1, s2) -> Integer.compare(s2.getCompletedPomodoros(), s1.getCompletedPomodoros()))
             .forEach(stat -> tableModel.addRow(new Object[]{
                 stat.getTaskName(),
-                stat.getCompletedPomodoros(),
                 stat.getFormattedTimeSpent()
             }));
     }

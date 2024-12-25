@@ -93,7 +93,6 @@ public class JsonConverter {
         for (Map.Entry<String, TaskStats> entry : taskStats.entrySet()) {
             TaskStats stats = entry.getValue();
             json.append("    \"").append(escapeJson(entry.getKey())).append("\": {\n");
-            json.append("      \"completedPomodoros\": ").append(stats.getCompletedPomodoros()).append(",\n");
             json.append("      \"totalTimeSpent\": ").append(stats.getTotalTimeSpent()).append("\n");
             json.append("    }").append(i < taskStats.size() - 1 ? ",\n" : "\n");
             i++;
@@ -118,7 +117,6 @@ public class JsonConverter {
                 for (String taskName : extractTaskNames(statsJson)) {
                     TaskStats stats = new TaskStats(taskName);
                     String taskJson = extractTaskStatsJson(statsJson, taskName);
-                    stats.setCompletedPomodoros(extractInt(taskJson, "\"completedPomodoros\":"));
                     stats.setTotalTimeSpent(extractInt(taskJson, "\"totalTimeSpent\":"));
                     taskStats.put(taskName, stats);
                 }
