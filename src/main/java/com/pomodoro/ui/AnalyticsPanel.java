@@ -21,6 +21,8 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
     private JTable statsTable;
     private DefaultTableModel tableModel;
     private JLabel totalPomodorosLabel;
+    private JLabel productiveHoursLabel;
+    private JLabel productiveDaysLabel;
     private JTabbedPane tabbedPane;
     private static final int DEFAULT_PERIODS = 30; // Збільшуємо кількість періодів за замовчуванням
 
@@ -54,6 +56,16 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         totalPomodorosLabel = new JLabel("Total Pomodoro Sessions: 0");
         totalPomodorosLabel.setFont(new Font("Arial", Font.BOLD, 16));
         summaryPanel.add(totalPomodorosLabel);
+
+        // Productivity Trends Panel
+        JPanel trendsPanel = new JPanel(new GridLayout(2, 1));
+        productiveHoursLabel = new JLabel("Most Productive Hours: N/A");
+        productiveHoursLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        productiveDaysLabel = new JLabel("Most Productive Days: N/A");
+        productiveDaysLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        trendsPanel.add(productiveHoursLabel);
+        trendsPanel.add(productiveDaysLabel);
+        summaryPanel.add(trendsPanel);
 
         // Table Panel
         tableModel = new DefaultTableModel(
@@ -116,10 +128,42 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
                 stat.getFormattedTimeSpent()
             }));
 
+        // Update productivity trends
+        updateProductivityTrends(stats);
+
         // Update each chart in its tab
         updateChart(stats, "Daily Tasks", ChronoUnit.DAYS, DEFAULT_PERIODS);
         updateChart(stats, "Weekly Tasks", ChronoUnit.WEEKS, DEFAULT_PERIODS/7);
         updateChart(stats, "Monthly Tasks", ChronoUnit.MONTHS, DEFAULT_PERIODS/30);
+    }
+
+    private void updateProductivityTrends(Map<String, TaskStats> stats) {
+        Map<Integer, Long> hourProductivity = new HashMap<>();
+        Map<DayOfWeek, Long> dayProductivity = new HashMap<>();
+
+        stats.values().forEach(stat -> {
+            LocalDateTime completionTime = stat.getCompletionTime();
+            if (completionTime != null) {
+                int hour = completionTime.getHour();
+                DayOfWeek day = completionTime.getDayOfWeek();
+
+                hourProductivity.put(hour, hourProductivity.getOrDefault(hour, 0L) + 1);
+                dayProductivity.put(day, dayProductivity.getOrDefault(day, 0L) + 1);
+            }
+        });
+
+        int mostProductiveHour = hourProductivity.entrySet().stream()
+            .max(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey)
+            .orElse(-1);
+
+        DayOfWeek mostProductiveDay = dayProductivity.entrySet().stream()
+            .max(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey)
+            .orElse(null);
+
+        productiveHoursLabel.setText("Most Productive Hours: " + (mostProductiveHour != -1 ? mostProductiveHour + ":00" : "N/A"));
+        productiveDaysLabel.setText("Most Productive Days: " + (mostProductiveDay != null ? mostProductiveDay : "N/A"));
     }
 
     private void updateChart(Map<String, TaskStats> stats, String title, ChronoUnit unit, int periods) {
