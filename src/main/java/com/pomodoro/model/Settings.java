@@ -29,7 +29,7 @@ public class Settings {
      * Default: 25min work, 5min short break, 15min long break, 4 sessions until long break.
      */
     public Settings() {
-        this(1 * 60, 5 * 60, 15 * 60, 4);
+        this(25 * 60, 5 * 60, 15 * 60, 4);
     }
 
     // Getters and setters

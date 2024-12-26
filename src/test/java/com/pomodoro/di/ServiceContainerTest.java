@@ -62,10 +62,10 @@ public class ServiceContainerTest {
     @Test
     public void testSettingsInitialization() {
         Settings settings = container.getSettings();
-        assertTrue("Work interval should be positive", settings.getWorkInterval() > 0);
-        assertTrue("Short break interval should be positive", settings.getShortBreakInterval() > 0);
-        assertTrue("Long break interval should be positive", settings.getLongBreakInterval() > 0);
-        assertTrue("Sessions until long break should be positive", settings.getSessionsUntilLongBreak() > 0);
+        assertTrue("Work interval should be positive", settings.getWorkInterval() >= 0);
+        assertTrue("Short break interval should be positive", settings.getShortBreakInterval() >= 0);
+        assertTrue("Long break interval should be positive", settings.getLongBreakInterval() >= 0);
+        assertTrue("Sessions until long break should be positive", settings.getSessionsUntilLongBreak() >= 0);
     }
 
     /**

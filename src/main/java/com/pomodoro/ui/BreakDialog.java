@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.Toolkit; // Додаємо імпорт для системних звуків
 
 /**
  * Dialog window that appears during break intervals.
@@ -25,6 +26,9 @@ public class BreakDialog extends JDialog {
     public BreakDialog(JFrame parent, int breakDuration, boolean isLongBreak) {
         super(parent, "Break Time!", true);
         this.timeLeft = breakDuration;
+        
+        // Play start break sound
+        Toolkit.getDefaultToolkit().beep();
         
         setLayout(new BorderLayout(10, 10));
         
@@ -76,6 +80,8 @@ public class BreakDialog extends JDialog {
             timerLabel.setText(formatTime(timeLeft));
         } else {
             breakTimer.stop();
+            // Play end break sound
+            Toolkit.getDefaultToolkit().beep();
             dispose();
         }
     }
