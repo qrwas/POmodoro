@@ -1,7 +1,7 @@
-package main.java.com.pomodoro.ui;
+package com.pomodoro.ui;
 
-import main.java.com.pomodoro.model.*;
-import main.java.com.pomodoro.service.AnalyticsService;
+import com.pomodoro.model.*;
+import com.pomodoro.service.AnalyticsService;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;

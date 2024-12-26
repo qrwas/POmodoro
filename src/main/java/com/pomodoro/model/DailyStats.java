@@ -1,4 +1,4 @@
-package main.java.com.pomodoro.model;
+package com.pomodoro.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

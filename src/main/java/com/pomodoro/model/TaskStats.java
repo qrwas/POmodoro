@@ -1,4 +1,4 @@
-package main.java.com.pomodoro.model;
+package com.pomodoro.model;
 
 public class TaskStats {
     private final String taskName;

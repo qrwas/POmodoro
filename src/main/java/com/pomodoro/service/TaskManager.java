@@ -1,6 +1,6 @@
-package main.java.com.pomodoro.service;
+package com.pomodoro.service;
 
-import main.java.com.pomodoro.model.Task;
+import com.pomodoro.model.Task;
 import java.util.*;
 
 public class TaskManager {

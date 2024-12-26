@@ -1,7 +1,7 @@
-package main.java.com.pomodoro.ui;
+package com.pomodoro.ui;
 
-import main.java.com.pomodoro.model.Task;
-import main.java.com.pomodoro.service.TaskManager;
+import com.pomodoro.model.Task;
+import com.pomodoro.service.TaskManager;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.table.DefaultTableModel;

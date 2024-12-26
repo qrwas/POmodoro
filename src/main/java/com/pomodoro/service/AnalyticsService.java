@@ -1,6 +1,6 @@
-package main.java.com.pomodoro.service;
+package com.pomodoro.service;
 
-import main.java.com.pomodoro.model.*;
+import com.pomodoro.model.*;
 import java.util.*;
 
 public class AnalyticsService {

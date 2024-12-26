@@ -1,13 +1,11 @@
-package main.java.com.pomodoro;
+package com.pomodoro;
 
 import javax.swing.*;
 import java.awt.*;
-import main.java.com.pomodoro.ui.MainPanel;
-import main.java.com.pomodoro.model.Settings;
-import main.java.com.pomodoro.ui.SettingsDialog;
-import main.java.com.pomodoro.di.ServiceContainer;
-import main.java.com.pomodoro.ui.AnalyticsPanel;
-import main.java.com.pomodoro.service.AnalyticsService;
+import com.pomodoro.ui.*;
+import com.pomodoro.model.Settings;
+import com.pomodoro.service.AnalyticsService;
+import com.pomodoro.di.ServiceContainer;
 
 public class MainApp extends JFrame {
     private final ServiceContainer services;

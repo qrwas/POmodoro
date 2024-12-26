@@ -1,6 +1,6 @@
-package main.java.com.pomodoro.ui;
+package com.pomodoro.ui;
 
-import main.java.com.pomodoro.model.Settings;
+import com.pomodoro.model.Settings;
 import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;

@@ -1,4 +1,4 @@
-package main.java.com.pomodoro.ui;
+package com.pomodoro.ui;
 
 import javax.swing.*;
 import java.awt.*;

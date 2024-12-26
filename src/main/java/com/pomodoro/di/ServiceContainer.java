@@ -1,9 +1,9 @@
-package main.java.com.pomodoro.di;
+package com.pomodoro.di;
 
-import main.java.com.pomodoro.model.Settings;
-import main.java.com.pomodoro.service.TaskManager;
-import main.java.com.pomodoro.service.DataManager;
-import main.java.com.pomodoro.service.AnalyticsService;
+import com.pomodoro.model.Settings;
+import com.pomodoro.service.TaskManager;
+import com.pomodoro.service.DataManager;
+import com.pomodoro.service.AnalyticsService;
 
 public class ServiceContainer {
     private final Settings settings;
