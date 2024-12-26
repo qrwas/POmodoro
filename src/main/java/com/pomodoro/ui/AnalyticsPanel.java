@@ -256,14 +256,17 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
                                DefaultCategoryDataset base) {
         int currentPage = (sliding.getFirstCategoryIndex() / 30) + 1;
         int totalPages = (int)Math.ceil(base.getColumnCount() / 30.0);
+        if (sliding.getFirstCategoryIndex() + 30 >= base.getColumnCount()) {
+            currentPage = totalPages;
+        }
         label.setText(String.format("Page %d of %d", currentPage, totalPages));
     }
 
     private String getPeriodLabel(LocalDateTime date, ChronoUnit unit) {
         return switch (unit) {
-            case DAYS -> date.format(DateTimeFormatter.ofPattern("MM/dd"));
+            case DAYS -> date.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
             case WEEKS -> "Week " + date.get(WeekFields.ISO.weekOfWeekBasedYear());
-            case MONTHS -> date.format(DateTimeFormatter.ofPattern("MMM yy"));
+            case MONTHS -> date.format(DateTimeFormatter.ofPattern("MMM yyyy"));
             default -> date.toString();
         };
     }
