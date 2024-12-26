@@ -13,12 +13,20 @@ import org.junit.runners.JUnit4;
 import java.awt.Component;
 import java.awt.Container;
 
+/**
+ * Integration tests for MainApp class.
+ * Tests UI initialization and settings persistence.
+ */
 @RunWith(JUnit4.class)
 public class MainAppTest {
     private ServiceContainer services;
     private File tempSettingsFile;
     private MainApp mainApp;
 
+    /**
+     * Sets up test environment before each test.
+     * Initializes services and creates temporary files.
+     */
     @Before
     public void setUp() {
         services = new ServiceContainer();
@@ -26,6 +34,10 @@ public class MainAppTest {
         mainApp = new MainApp();
     }
 
+    /**
+     * Cleans up test environment after each test.
+     * Removes temporary files and disposes UI components.
+     */
     @After
     public void tearDown() {
         if (tempSettingsFile.exists()) {
@@ -36,6 +48,10 @@ public class MainAppTest {
         }
     }
 
+    /**
+     * Tests saving and loading of application settings.
+     * Verifies all settings values are preserved.
+     */
     @Test
     public void testSettingsSaveAndLoad() {
         // Arrange
@@ -73,6 +89,13 @@ public class MainAppTest {
         assertEquals("Second tab should be Analytics", "Analytics", tabbedPane.getTitleAt(1));
     }
 
+    /**
+     * Helper method to find a component of specific type in container hierarchy.
+     *
+     * @param container Container to search in
+     * @param componentClass Class of component to find
+     * @return Found component or null
+     */
     private Component findComponent(Container container, Class<?> componentClass) {
         for (Component component : container.getComponents()) {
             if (componentClass.isInstance(component)) {

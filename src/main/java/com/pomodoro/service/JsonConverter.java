@@ -6,15 +6,31 @@ import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * Handles JSON serialization and deserialization for application data.
+ * Provides conversion methods for tasks, settings, and analytics data.
+ */
 public class JsonConverter {
     private static final Gson gson = new GsonBuilder()
         .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
         .create();
 
+    /**
+     * Converts a list of tasks to JSON string.
+     *
+     * @param tasks List of tasks to convert
+     * @return JSON string representation
+     */
     public static String tasksToJson(List<Task> tasks) {
         return gson.toJson(tasks);
     }
 
+    /**
+     * Converts JSON string to list of tasks.
+     *
+     * @param json JSON string to convert
+     * @return List of Task objects
+     */
     public static List<Task> jsonToTasks(String json) {
         if (json == null || json.isEmpty()) {
             return new ArrayList<>();
@@ -23,6 +39,12 @@ public class JsonConverter {
         return gson.fromJson(json, listType);
     }
 
+    /**
+     * Converts settings object to JSON string.
+     *
+     * @param settings Settings to convert
+     * @return JSON string representation
+     */
     public static String settingsToJson(Settings settings) {
         return gson.toJson(settings);
     }
@@ -59,6 +81,9 @@ public class JsonConverter {
     }
 }
 
+/**
+ * Handles JSON serialization/deserialization of LocalDateTime objects.
+ */
 class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
     @Override
     public JsonElement serialize(LocalDateTime src, Type typeOfSrc, JsonSerializationContext context) {

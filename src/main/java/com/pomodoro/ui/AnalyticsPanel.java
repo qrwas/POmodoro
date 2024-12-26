@@ -17,6 +17,10 @@ import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Panel that displays analytics and statistics about Pomodoro sessions.
+ * Shows charts, tables, and productivity trends.
+ */
 public class AnalyticsPanel extends JPanel implements AnalyticsService.AnalyticsListener {
     private JTable statsTable;
     private DefaultTableModel tableModel;
@@ -26,12 +30,20 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
     private JTabbedPane tabbedPane;
     private static final int DEFAULT_PERIODS = 30; // Збільшуємо кількість періодів за замовчуванням
 
+    /**
+     * Creates a new analytics panel.
+     *
+     * @param analyticsService Service providing analytics data
+     */
     public AnalyticsPanel(AnalyticsService analyticsService) {
         analyticsService.addListener(this);
         initializeComponents();
         updateDisplay(analyticsService.getTaskStats(), analyticsService.getTotalPomodoros()); // Initialize table with saved data
     }
 
+    /**
+     * Initializes all UI components of the analytics panel.
+     */
     private void initializeComponents() {
         setLayout(new BorderLayout(10, 10));
         
@@ -48,6 +60,11 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         add(tabbedPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Creates the statistics table tab.
+     *
+     * @return Panel containing the statistics table
+     */
     private JPanel createTableTab() {
         JPanel tableTab = new JPanel(new BorderLayout(10, 10));
         
@@ -81,6 +98,14 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         return tableTab;
     }
 
+    /**
+     * Creates a chart tab for specific time period statistics.
+     *
+     * @param title Chart title
+     * @param unit Time unit for grouping data
+     * @param periods Number of periods to display
+     * @return Panel containing the chart
+     */
     private JPanel createSingleChartTab(String title, ChronoUnit unit, int periods) {
         JPanel chartTab = new JPanel(new BorderLayout());
         chartTab.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -112,11 +137,23 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         return chartTab;
     }
 
+    /**
+     * Handles updates to analytics data.
+     *
+     * @param stats Updated task statistics
+     * @param totalPomodoros Total number of completed Pomodoros
+     */
     @Override
     public void onStatsUpdated(Map<String, TaskStats> stats, int totalPomodoros) {
         updateDisplay(stats, totalPomodoros);
     }
 
+    /**
+     * Updates all display components with new statistics.
+     *
+     * @param stats Task statistics to display
+     * @param totalPomodoros Total number of completed Pomodoros
+     */
     private void updateDisplay(Map<String, TaskStats> stats, int totalPomodoros) {
         totalPomodorosLabel.setText("Total Pomodoro Sessions: " + totalPomodoros);
 
@@ -137,6 +174,11 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         updateChart(stats, "Monthly Tasks", ChronoUnit.MONTHS, DEFAULT_PERIODS/30);
     }
 
+    /**
+     * Updates productivity trend labels with most productive hours and days.
+     *
+     * @param stats Task statistics for analysis
+     */
     private void updateProductivityTrends(Map<String, TaskStats> stats) {
         Map<Integer, Long> hourProductivity = new HashMap<>();
         Map<DayOfWeek, Long> dayProductivity = new HashMap<>();
@@ -166,6 +208,14 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         productiveDaysLabel.setText("Most Productive Days: " + (mostProductiveDay != null ? mostProductiveDay : "N/A"));
     }
 
+    /**
+     * Updates specific chart with new statistics.
+     *
+     * @param stats Task statistics to display
+     * @param title Chart title
+     * @param unit Time unit for grouping data
+     * @param periods Number of periods to display
+     */
     private void updateChart(Map<String, TaskStats> stats, String title, ChronoUnit unit, int periods) {
         // Find the tab with this chart
         for (int i = 0; i < tabbedPane.getTabCount(); i++) {
@@ -187,6 +237,13 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         }
     }
 
+    /**
+     * Recursively searches for chart holder panel by title.
+     *
+     * @param container Container to search in
+     * @param title Title of the chart holder to find
+     * @return Found chart holder panel or null
+     */
     private JPanel findChartHolder(Container container, String title) {
         // Перевіряємо чи поточний контейнер є шуканою панеллю
         if (container instanceof JPanel 
@@ -206,6 +263,13 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         return null;
     }
 
+    /**
+     * Creates a chart panel with specified settings.
+     *
+     * @param chart Chart to display
+     * @param preferredSize Preferred size for the panel
+     * @return Configured chart panel
+     */
     private ChartPanel createChartPanel(JFreeChart chart, Dimension preferredSize) {
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new Dimension(600, 400));

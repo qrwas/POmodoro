@@ -5,12 +5,23 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+/**
+ * Dialog window that appears during break intervals.
+ * Displays a countdown timer and allows users to skip breaks.
+ */
 public class BreakDialog extends JDialog {
     private JLabel timerLabel;
     private Timer breakTimer;
     private int timeLeft;
     private boolean breakSkipped = false;
 
+    /**
+     * Creates a new break dialog.
+     *
+     * @param parent The parent frame for this dialog
+     * @param breakDuration Duration of the break in seconds
+     * @param isLongBreak True if this is a long break, false for short break
+     */
     public BreakDialog(JFrame parent, int breakDuration, boolean isLongBreak) {
         super(parent, "Break Time!", true);
         this.timeLeft = breakDuration;
@@ -55,6 +66,10 @@ public class BreakDialog extends JDialog {
         breakTimer.start();
     }
 
+    /**
+     * Updates the countdown timer display.
+     * Closes the dialog when timer reaches zero.
+     */
     private void updateTimer() {
         if (timeLeft > 0) {
             timeLeft--;
@@ -65,12 +80,23 @@ public class BreakDialog extends JDialog {
         }
     }
 
+    /**
+     * Formats time in seconds to MM:SS format.
+     *
+     * @param seconds Time to format in seconds
+     * @return Formatted time string
+     */
     private String formatTime(int seconds) {
         int minutes = seconds / 60;
         int remainingSeconds = seconds % 60;
         return String.format("%02d:%02d", minutes, remainingSeconds);
     }
 
+    /**
+     * Checks if the break was skipped by the user.
+     *
+     * @return True if break was skipped, false otherwise
+     */
     public boolean wasBreakSkipped() {
         return breakSkipped;
     }

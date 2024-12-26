@@ -6,11 +6,19 @@ import org.junit.Test;
 import com.pomodoro.model.Task;
 import java.util.List;
 
+/**
+ * Unit tests for TaskManager class.
+ * Tests task management operations including adding, starting, completing, and filtering tasks.
+ */
 public class TaskManagerTest {
     private TestDataManager dataManager;
     private AnalyticsService analyticsService;
     private TaskManager taskManager;
 
+    /**
+     * Sets up test environment before each test.
+     * Initializes test data manager and services.
+     */
     @Before
     public void setUp() {
         dataManager = new TestDataManager();
@@ -18,6 +26,10 @@ public class TaskManagerTest {
         taskManager = new TaskManager(dataManager, analyticsService);
     }
 
+    /**
+     * Tests adding a new task.
+     * Verifies task properties are correctly set.
+     */
     @Test
     public void testAddTask() {
         // Arrange & Act
@@ -30,6 +42,10 @@ public class TaskManagerTest {
         assertEquals(1, tasks.get(0).getPriority());
     }
 
+    /**
+     * Tests starting a task.
+     * Verifies task status changes and current active task is set.
+     */
     @Test
     public void testStartTask() {
         // Arrange

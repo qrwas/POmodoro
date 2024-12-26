@@ -5,6 +5,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
 
+/**
+ * Dialog window for configuring Pomodoro timer settings.
+ * Allows users to modify work intervals, break durations, and session counts.
+ */
 public class SettingsDialog extends JDialog {
     private JTextField workField;
     private JTextField shortBreakField;
@@ -12,6 +16,13 @@ public class SettingsDialog extends JDialog {
     private JTextField sessionsField;
     private final Consumer<Settings> onSave;
 
+    /**
+     * Creates a new settings dialog.
+     *
+     * @param parent The parent frame for this dialog
+     * @param currentSettings Current application settings
+     * @param onSave Callback to handle saving of new settings
+     */
     public SettingsDialog(JFrame parent, Settings currentSettings, Consumer<Settings> onSave) {
         super(parent, "Settings", true);
         this.onSave = onSave;
@@ -54,6 +65,11 @@ public class SettingsDialog extends JDialog {
         setLocationRelativeTo(parent);
     }
 
+    /**
+     * Saves the current settings and closes the dialog.
+     * Validates input values before saving.
+     * Shows error message if input validation fails.
+     */
     private void saveSettings() {
         try {
             Settings settings = new Settings(
