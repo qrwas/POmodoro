@@ -35,6 +35,7 @@ public class ServiceContainer {
     }
 
     public void saveAll() {
+        System.out.println("settings " + settings.getWorkInterval());
         dataManager.saveSettings(settings);
         taskManager.saveTasks();
         analyticsService.saveAnalytics();

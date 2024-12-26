@@ -59,6 +59,8 @@ public class DataManager {
             System.out.println("Settings loaded: " + json);
             return JsonConverter.jsonToSettings(json);
         } catch (IOException e) {
+            System.out.println("Settings not found, creating new settings" + e);
+            e.printStackTrace();
             return new Settings();
         }
     }

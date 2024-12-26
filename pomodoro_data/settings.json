@@ -1,5 +1,5 @@
 {
-  "workInterval": 1500,
+  "workInterval": 0,
   "shortBreakInterval": 300,
   "longBreakInterval": 900,
   "sessionsUntilLongBreak": 4

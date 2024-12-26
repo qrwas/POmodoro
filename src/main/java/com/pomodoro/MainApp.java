@@ -102,6 +102,11 @@ public class MainApp extends JFrame {
                     settings.getLongBreakInterval() / 60,
                     settings.getSessionsUntilLongBreak()
                 );
+                currentSettings.setWorkInterval(settings.getWorkInterval());
+                currentSettings.setLongBreakInterval(settings.getLongBreakInterval());
+                currentSettings.setShortBreakInterval(settings.getShortBreakInterval());
+                currentSettings.setSessionsUntilLongBreak(settings.getSessionsUntilLongBreak());
+                System.out.println("Settings saved: " + services.getSettings().getWorkInterval());
             }
         );
         dialog.setVisible(true);

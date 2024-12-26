@@ -13,6 +13,7 @@ public class JsonConverter {
     public static String tasksToJson(List<Task> tasks) {
         StringBuilder json = new StringBuilder("{\n  \"tasks\": [\n");
         for (int i = 0; i < tasks.size(); i++) {
+            System.out.println("Task: " + tasks.get(i).getName());
             Task task = tasks.get(i);
             json.append("    {\n")
                 .append("      \"name\": \"").append(escapeJson(task.getName())).append("\",\n")
@@ -33,22 +34,20 @@ public class JsonConverter {
             return tasks;
         }
 
-        int tasksStart = json.indexOf("\"tasks\":");
-        if (tasksStart == -1) return tasks;
-
-        String tasksArray = json.substring(tasksStart + 8, json.lastIndexOf(']'));
-        String[] taskObjects = tasksArray.split("\\},\\{");
-        for (String taskJson : taskObjects) {
-            taskJson = taskJson.replace("[", "").replace("]", "").replace("{", "").replace("}", "").trim();
-            if (!taskJson.isEmpty()) {
-                tasks.add(parseTask("{" + taskJson + "}"));
-            }
+        // Simple JSON parsing
+        String[] taskObjects = json.split("\\{\\s*\"name\":");
+        for (int i = 1; i < taskObjects.length; i++) { // Skip first split as it's the header
+            String taskJson = "name:\n" + taskObjects[i];
+            Task task = parseTask(taskJson);
+            tasks.add(task);
         }
         return tasks;
     }
 
     private static Task parseTask(String json) {
         String name = extractString(json, "\"name\":");
+        System.out.println("Task name: " + name);
+        System.out.println("Task json: " + json);
         int priority = extractInt(json, "\"priority\":");
         boolean completed = extractBoolean(json, "\"completed\":");
         int index = extractInt(json, "\"index\":");
@@ -74,20 +73,17 @@ public class JsonConverter {
     }
 
     public static Settings jsonToSettings(String json) {
-        if (json == null || json.isEmpty()) {
-            return new Settings();
-        }
+        // if (json == null || json.isEmpty()) {
 
-        try {
+        //     return new Settings();
+        // }
+
             return new Settings(
                 extractInt(json, "\"workInterval\":"),
                 extractInt(json, "\"shortBreakInterval\":"),
                 extractInt(json, "\"longBreakInterval\":"),
                 extractInt(json, "\"sessionsUntilLongBreak\":")
             );
-        } catch (Exception e) {
-            return new Settings();
-        }
     }
 
     public static String analyticsToJson(Map<String, TaskStats> taskStats, int totalPomodoros) {

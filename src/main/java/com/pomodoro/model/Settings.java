@@ -15,7 +15,7 @@ public class Settings {
 
     // Default settings constructor
     public Settings() {
-        this(25 * 60, 5 * 60, 15 * 60, 4);
+        this(1 * 60, 5 * 60, 15 * 60, 4);
     }
 
     // Getters and setters
@@ -30,4 +30,6 @@ public class Settings {
     
     public int getSessionsUntilLongBreak() { return sessionsUntilLongBreak; }
     public void setSessionsUntilLongBreak(int sessionsUntilLongBreak) { this.sessionsUntilLongBreak = sessionsUntilLongBreak; }
+
+    
 }

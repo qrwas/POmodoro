@@ -1,5 +1,8 @@
 {
-  "totalPomodoros": 0,
+  "totalPomodoros": 1,
   "taskStats": {
+    "aaaaaa": {
+      "totalTimeSpent": 0
+    }
   }
 }
