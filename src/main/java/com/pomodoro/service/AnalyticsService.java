@@ -1,6 +1,7 @@
 package com.pomodoro.service;
 
 import com.pomodoro.model.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class AnalyticsService {
@@ -27,7 +28,7 @@ public class AnalyticsService {
             task.getName(), 
             TaskStats::new
         );
-        stats.addPomodoro(duration);
+        stats.addPomodoro(duration, task.getCompletionTime());
         totalPomodoros++;
         notifyListeners();
         saveAnalytics();

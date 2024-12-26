@@ -27,7 +27,6 @@ public class DataManager {
         try {
             String json = JsonConverter.tasksToJson(tasks);
             Files.writeString(Path.of(DATA_DIR, TASKS_FILE), json);
-            System.out.println("Tasks saved: " + json);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -36,7 +35,6 @@ public class DataManager {
     public List<Task> loadTasks() {
         try {
             String json = Files.readString(Path.of(DATA_DIR, TASKS_FILE));
-            System.out.println("Tasks loaded: " + json);
             return JsonConverter.jsonToTasks(json);
         } catch (IOException e) {
             return new ArrayList<>();
@@ -47,7 +45,6 @@ public class DataManager {
         try {
             String json = JsonConverter.settingsToJson(settings);
             Files.writeString(Path.of(DATA_DIR, SETTINGS_FILE), json);
-            System.out.println("Settings saved: " + json);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,7 +53,6 @@ public class DataManager {
     public Settings loadSettings() {
         try {
             String json = Files.readString(Path.of(DATA_DIR, SETTINGS_FILE));
-            System.out.println("Settings loaded: " + json);
             return JsonConverter.jsonToSettings(json);
         } catch (IOException e) {
             System.out.println("Settings not found, creating new settings" + e);
@@ -69,7 +65,6 @@ public class DataManager {
         try {
             String json = JsonConverter.analyticsToJson(taskStats, totalPomodoros);
             Files.writeString(Path.of(DATA_DIR, ANALYTICS_FILE), json);
-            System.out.println("Analytics saved: " + json);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -78,7 +73,6 @@ public class DataManager {
     public AnalyticsData loadAnalytics() {
         try {
             String json = Files.readString(Path.of(DATA_DIR, ANALYTICS_FILE));
-            System.out.println("Analytics loaded: " + json);
             return JsonConverter.jsonToAnalytics(json);
         } catch (IOException e) {
             return new AnalyticsData(new HashMap<>(), 0);
