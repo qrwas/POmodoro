@@ -6,6 +6,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.category.SlidingCategoryDataset;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -203,8 +204,7 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         }
 
         // Create sliding dataset with 30-day window
-        org.jfree.data.category.SlidingCategoryDataset slidingDataset = 
-            new org.jfree.data.category.SlidingCategoryDataset(baseDataset, 0, 30);
+        SlidingCategoryDataset slidingDataset = new SlidingCategoryDataset(baseDataset, 0, 30);
 
         JFreeChart chart = ChartFactory.createBarChart(
             title,
@@ -218,13 +218,6 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         plot.getDomainAxis().setCategoryLabelPositions(
             org.jfree.chart.axis.CategoryLabelPositions.UP_45
         );
-        
-        // Store the sliding dataset in the chart's properties for later access
-        chart.setNotify(false); // Prevent immediate redraws
-        chart.addPropertyChangeListener("sliding.dataset", 
-            evt -> plot.setDataset((org.jfree.data.category.SlidingCategoryDataset)evt.getNewValue()));
-        chart.setProperty("sliding.dataset", slidingDataset);
-        chart.setNotify(true);
 
         // Setup navigation buttons
         JPanel chartHolder = findChartHolder(this, title);
@@ -233,13 +226,12 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
             JButton nextButton = (JButton)chartHolder.getClientProperty("nextButton");
             JLabel pageLabel = (JLabel)chartHolder.getClientProperty("pageLabel");
             
-            int maxPage = (int)Math.ceil(baseDataset.getColumnCount() / 30.0);
-            
             prevButton.addActionListener(e -> {
                 int firstIdx = slidingDataset.getFirstCategoryIndex();
                 if (firstIdx > 0) {
                     slidingDataset.setFirstCategoryIndex(Math.max(0, firstIdx - 30));
                     updatePageLabel(pageLabel, slidingDataset, baseDataset);
+                    chart.fireChartChanged(); // Notify chart about data changes
                 }
             });
             
@@ -249,6 +241,7 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
                 if (firstIdx < maxIdx) {
                     slidingDataset.setFirstCategoryIndex(Math.min(maxIdx, firstIdx + 30));
                     updatePageLabel(pageLabel, slidingDataset, baseDataset);
+                    chart.fireChartChanged(); // Notify chart about data changes
                 }
             });
             
@@ -259,7 +252,7 @@ public class AnalyticsPanel extends JPanel implements AnalyticsService.Analytics
         return chart;
     }
 
-    private void updatePageLabel(JLabel label, org.jfree.data.category.SlidingCategoryDataset sliding, 
+    private void updatePageLabel(JLabel label, SlidingCategoryDataset sliding, 
                                DefaultCategoryDataset base) {
         int currentPage = (sliding.getFirstCategoryIndex() / 30) + 1;
         int totalPages = (int)Math.ceil(base.getColumnCount() / 30.0);
