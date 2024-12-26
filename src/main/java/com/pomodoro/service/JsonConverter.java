@@ -1,11 +1,15 @@
 package com.pomodoro.service;
 
 import com.pomodoro.model.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class JsonConverter {
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
     public static String tasksToJson(List<Task> tasks) {
         StringBuilder json = new StringBuilder("{\n  \"tasks\": [\n");
         for (int i = 0; i < tasks.size(); i++) {
@@ -15,7 +19,8 @@ public class JsonConverter {
                 .append("      \"priority\": ").append(task.getPriority()).append(",\n")
                 .append("      \"completed\": ").append(task.isCompleted()).append(",\n")
                 .append("      \"index\": ").append(task.getIndex()).append(",\n")
-                .append("      \"plannedDuration\": ").append(task.getPlannedDuration()).append("\n")
+                .append("      \"plannedDuration\": ").append(task.getPlannedDuration()).append(",\n")
+                .append("      \"completionTime\": \"").append(task.getCompletionTime() != null ? task.getCompletionTime().format(formatter) : "").append("\"\n")
                 .append("    }").append(i < tasks.size() - 1 ? ",\n" : "\n");
         }
         json.append("  ]\n}");
@@ -28,11 +33,9 @@ public class JsonConverter {
             return tasks;
         }
 
-        // Extract tasks array
         int tasksStart = json.indexOf("\"tasks\":");
         if (tasksStart == -1) return tasks;
 
-        // Split into individual task objects
         String tasksArray = json.substring(tasksStart + 8, json.lastIndexOf(']'));
         String[] taskObjects = tasksArray.split("\\},\\{");
         for (String taskJson : taskObjects) {
@@ -50,11 +53,14 @@ public class JsonConverter {
         boolean completed = extractBoolean(json, "\"completed\":");
         int index = extractInt(json, "\"index\":");
         int plannedDuration = extractInt(json, "\"plannedDuration\":");
+        String completionTimeStr = extractString(json, "\"completionTime\":");
+        LocalDateTime completionTime = completionTimeStr.isEmpty() ? null : LocalDateTime.parse(completionTimeStr, formatter);
 
         Task task = new Task(name, priority);
         task.setCompleted(completed);
         task.setIndex(index);
         task.setPlannedDuration(plannedDuration);
+        task.setCompletionTime(completionTime);
         return task;
     }
 
@@ -113,7 +119,6 @@ public class JsonConverter {
             int statsStart = json.indexOf("\"taskStats\":");
             if (statsStart != -1) {
                 String statsJson = json.substring(statsStart);
-                // Parse individual task stats
                 for (String taskName : extractTaskNames(statsJson)) {
                     TaskStats stats = new TaskStats(taskName);
                     String taskJson = extractTaskStatsJson(statsJson, taskName);
@@ -134,7 +139,6 @@ public class JsonConverter {
         int end = json.lastIndexOf('}');
         String statsContent = json.substring(start, end);
         
-        // Extract task names using regex
         Pattern pattern = Pattern.compile("\"([^\"]+)\":\\s*\\{");
         Matcher matcher = pattern.matcher(statsContent);
         while (matcher.find()) {

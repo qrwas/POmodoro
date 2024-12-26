@@ -1,6 +1,7 @@
 package com.pomodoro.service;
 
 import com.pomodoro.model.Task;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class TaskManager {
@@ -94,6 +95,7 @@ public class TaskManager {
     public void completeTask(Task task) {
         task.setCompleted(true);
         task.setInProgress(false);
+        task.setCompletionTime(LocalDateTime.now()); // Set completion time
         if (task == currentActiveTask) {
             currentActiveTask = null;
         }

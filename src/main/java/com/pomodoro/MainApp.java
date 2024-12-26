@@ -1,10 +1,8 @@
 package com.pomodoro;
 
 import javax.swing.*;
-import java.awt.*;
 import com.pomodoro.ui.*;
 import com.pomodoro.model.Settings;
-import com.pomodoro.service.AnalyticsService;
 import com.pomodoro.di.ServiceContainer;
 
 public class MainApp extends JFrame {
@@ -56,7 +54,10 @@ public class MainApp extends JFrame {
         fileMenu.addSeparator();
         
         JMenuItem exitItem = new JMenuItem("Exit");
-        exitItem.addActionListener(e -> System.exit(0));
+        exitItem.addActionListener(e -> {
+            services.saveAll();
+            System.exit(0);
+        });
         fileMenu.add(exitItem);
         
         // Help Menu
@@ -71,7 +72,7 @@ public class MainApp extends JFrame {
     private void createTabbedPane() {
         tabbedPane = new JTabbedPane();
         mainPanel = new MainPanel(services.getTaskManager());
-        analyticsPanel = new AnalyticsPanel( 
+        analyticsPanel = new AnalyticsPanel(
             services.getAnalyticsService()
         );
         
