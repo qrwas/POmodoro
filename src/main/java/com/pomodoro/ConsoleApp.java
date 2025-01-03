@@ -3,7 +3,9 @@ package com.pomodoro;
 import com.pomodoro.di.ServiceContainer;
 import com.pomodoro.model.Task;
 import com.pomodoro.model.Settings;
+import com.pomodoro.service.AnalyticsService;
 import com.pomodoro.service.TaskManager;
+import com.pomodoro.model.AnalyticsData;
 
 import java.util.List;
 import java.util.Scanner;
@@ -41,6 +43,7 @@ public class ConsoleApp {
         System.out.println("6. View Status"); // New option for viewing status
         System.out.println("7. Edit Task"); // New option for editing tasks
         System.out.println("8. Exit");
+        System.out.println("9. View Statistics"); // New option for viewing statistics
         System.out.print("Enter your choice: ");
     }
 
@@ -63,6 +66,7 @@ public class ConsoleApp {
             case 6 -> viewStatus(); // Handle view status
             case 7 -> editTask(); // Handle edit task
             case 8 -> exitApplication();
+            case 9 -> viewStatistics(); // Handle view statistics
             case -1 -> {} // Do nothing for invalid input
             default -> System.out.println("Invalid choice. Please try again.");
         }
@@ -91,6 +95,12 @@ public class ConsoleApp {
     }
 
     private void startTask() {
+        Task currentTask = taskManager.getCurrentActiveTask();
+        if (currentTask != null) {
+            System.out.println("There is already an active task: " + currentTask.getName());
+            return;
+        }
+
         List<Task> tasks = taskManager.getFilteredTasks("Active");
         if (tasks.isEmpty()) {
             System.out.println("No active tasks available to start.");
@@ -222,6 +232,12 @@ public class ConsoleApp {
         } else {
             System.out.println("Invalid choice.");
         }
+    }
+
+    private void viewStatistics() {
+        AnalyticsService analytics = services.getAnalyticsService();
+        int completedTasks = analytics.getTaskStats().size();
+        System.out.printf("Total completed tasks: %d%n", completedTasks);
     }
 
     private void exitApplication() {
