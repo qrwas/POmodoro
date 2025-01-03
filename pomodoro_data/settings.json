@@ -1,1 +1,1 @@
-{"workInterval":60,"shortBreakInterval":60,"longBreakInterval":60,"sessionsUntilLongBreak":1}
+{"workInterval":1500,"shortBreakInterval":300,"longBreakInterval":900,"sessionsUntilLongBreak":4}

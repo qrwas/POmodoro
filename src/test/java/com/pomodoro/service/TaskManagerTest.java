@@ -3,6 +3,8 @@ package com.pomodoro.service;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.pomodoro.model.Settings;
 import com.pomodoro.model.Task;
 import java.util.List;
 
@@ -14,6 +16,7 @@ public class TaskManagerTest {
     private TestDataManager dataManager;
     private AnalyticsService analyticsService;
     private TaskManager taskManager;
+    private Settings settings;
 
     /**
      * Sets up test environment before each test.
@@ -23,7 +26,8 @@ public class TaskManagerTest {
     public void setUp() {
         dataManager = new TestDataManager();
         analyticsService = new AnalyticsService(dataManager);
-        taskManager = new TaskManager(dataManager, analyticsService, null);
+        settings = new Settings();
+        taskManager = new TaskManager(dataManager, analyticsService, settings);
     }
 
     /**
