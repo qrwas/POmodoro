@@ -17,6 +17,8 @@ public class TaskManager {
     private Task currentActiveTask;
     private List<TaskChangeListener> listeners = new ArrayList<>();
     private Timer taskTimer;
+    private boolean onBreak;
+    private int remainingBreakTime;
 
     /**
      * Creates a new TaskManager instance.
@@ -127,6 +129,7 @@ public class TaskManager {
         if (currentActiveTask != null && currentActiveTask != task) {
             throw new IllegalStateException("Another task is already in progress");
         }
+        endBreak(); // End any ongoing break when starting a task
         task.setPlannedDuration(duration);
         currentActiveTask = task;
         task.setInProgress(true);
@@ -182,6 +185,7 @@ public class TaskManager {
         }
         notifyTaskStatusChanged(task);
         analyticsService.recordPomodoro(task, task.getPlannedDuration());
+        endBreak(); // End any ongoing break when completing a task
 
         // Cancel the timer if the task is completed manually
         if (taskTimer != null) {
@@ -304,6 +308,35 @@ public class TaskManager {
             case "Low" -> 3;
             default -> 4;
         };
+    }
+
+    public boolean isOnBreak() {
+        return onBreak;
+    }
+
+    public int getRemainingBreakTime() {
+        return remainingBreakTime;
+    }
+
+    public void startBreak(int duration) {
+        onBreak = true;
+        remainingBreakTime = duration;
+        taskTimer = new Timer();
+        taskTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                endBreak();
+            }
+        }, duration * 1000L); // Convert seconds to milliseconds
+    }
+
+    public void endBreak() {
+        onBreak = false;
+        remainingBreakTime = 0;
+        if (taskTimer != null) {
+            taskTimer.cancel();
+            taskTimer = null;
+        }
     }
 
     private void loadSavedTasks() {

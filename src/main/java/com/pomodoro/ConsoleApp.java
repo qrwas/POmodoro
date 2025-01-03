@@ -38,7 +38,9 @@ public class ConsoleApp {
         System.out.println("3. Start Task");
         System.out.println("4. Complete Task");
         System.out.println("5. Settings");
-        System.out.println("6. Exit");
+        System.out.println("6. View Status"); // New option for viewing status
+        System.out.println("7. Edit Task"); // New option for editing tasks
+        System.out.println("8. Exit");
         System.out.print("Enter your choice: ");
     }
 
@@ -53,7 +55,9 @@ public class ConsoleApp {
             case 3 -> startTask();
             case 4 -> completeTask();
             case 5 -> showSettings();
-            case 6 -> exitApplication();
+            case 6 -> viewStatus(); // Handle view status
+            case 7 -> editTask(); // Handle edit task
+            case 8 -> exitApplication();
             default -> System.out.println("Invalid choice. Please try again.");
         }
     }
@@ -148,6 +152,71 @@ public class ConsoleApp {
         settings.setSessionsUntilLongBreak(Integer.parseInt(scanner.nextLine()));
         services.getDataManager().saveSettings(settings);
         System.out.println("Settings updated successfully.");
+    }
+
+    private void viewStatus() {
+        Task currentTask = taskManager.getCurrentActiveTask();
+        if (currentTask != null) {
+            System.out.printf("Current Task: %s (Priority: %d)%n", currentTask.getName(), currentTask.getPriority());
+            System.out.println("1. Reset Task");
+            System.out.println("2. Return to Menu");
+            int choice = getUserChoice();
+            if (choice == 1) {
+                taskManager.resetTask(currentTask);
+                System.out.println("Task reset successfully.");
+            }
+        } else if (taskManager.isOnBreak()) {
+            int remainingTime = taskManager.getRemainingBreakTime();
+            System.out.printf("On Break: %d minutes remaining%n", remainingTime / 60);
+            System.out.println("1. End Break");
+            System.out.println("2. Return to Menu");
+            int choice = getUserChoice();
+            if (choice == 1) {
+                taskManager.endBreak();
+                System.out.println("Break ended successfully.");
+            }
+        } else {
+            System.out.println("No active tasks or breaks.");
+        }
+    }
+
+    private void editTask() {
+        List<Task> tasks = taskManager.getAllTasks();
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks available.");
+            return;
+        }
+
+        System.out.println("Tasks:");
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            System.out.printf("%d. %s (Priority: %d, Status: %s)%n", i + 1, task.getName(), task.getPriority(), taskManager.getTaskStatus(task));
+        }
+
+        System.out.print("Enter task number to edit: ");
+        int taskNumber = Integer.parseInt(scanner.nextLine()) - 1;
+        if (taskNumber < 0 || taskNumber >= tasks.size()) {
+            System.out.println("Invalid task number.");
+            return;
+        }
+
+        Task task = tasks.get(taskNumber);
+        System.out.println("1. Edit Task");
+        System.out.println("2. Delete Task");
+        int choice = getUserChoice();
+        if (choice == 1) {
+            System.out.print("Enter new task name: ");
+            String newName = scanner.nextLine();
+            System.out.print("Enter new task priority (1-High, 2-Medium, 3-Low): ");
+            int newPriority = Integer.parseInt(scanner.nextLine());
+            taskManager.updateTask(task, newName, newPriority);
+            System.out.println("Task updated successfully.");
+        } else if (choice == 2) {
+            taskManager.deleteTask(task);
+            System.out.println("Task deleted successfully.");
+        } else {
+            System.out.println("Invalid choice.");
+        }
     }
 
     private void exitApplication() {
