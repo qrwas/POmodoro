@@ -1,5 +1,7 @@
 package com.pomodoro.service;
 
+import com.pomodoro.di.ServiceContainer;
+import com.pomodoro.model.Settings;
 import com.pomodoro.model.Task;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -11,6 +13,7 @@ import java.util.TimerTask;
  * Handles task creation, deletion, updates, and status changes.
  */
 public class TaskManager {
+    private final Settings settings;
     private final DataManager dataManager;
     private final AnalyticsService analyticsService;
     private List<Task> tasks = new ArrayList<>();
@@ -28,8 +31,9 @@ public class TaskManager {
      * @param dataManager Manager for persisting task data
      * @param analyticsService Service for tracking task analytics
      */
-    public TaskManager(DataManager dataManager, AnalyticsService analyticsService) {
+    public TaskManager(DataManager dataManager, AnalyticsService analyticsService, Settings settings) {
         this.dataManager = dataManager;
+        this.settings = settings;
         this.analyticsService = analyticsService;
         loadSavedTasks();
     }
@@ -194,6 +198,9 @@ public class TaskManager {
             taskTimer.cancel();
             taskTimer = null;
         }
+
+        // Start a break automatically after completing a task
+        startBreak(settings.getShortBreakInterval());
     }
 
     /**
@@ -317,12 +324,17 @@ public class TaskManager {
     }
 
     public int getRemainingBreakTime() {
-        return remainingBreakTime;
+        if (!onBreak || taskStartTime == null) {
+            return 0;
+        }
+        long elapsedSeconds = java.time.Duration.between(taskStartTime, LocalDateTime.now()).getSeconds();
+        return remainingBreakTime - (int) elapsedSeconds;
     }
 
     public void startBreak(int duration) {
         onBreak = true;
         remainingBreakTime = duration;
+        taskStartTime = LocalDateTime.now();
         taskTimer = new Timer();
         taskTimer.schedule(new TimerTask() {
             @Override

@@ -36,7 +36,7 @@ public class ConsoleApp {
         System.out.println("1. View Tasks");
         System.out.println("2. Add Task");
         System.out.println("3. Start Task");
-        System.out.println("4. Complete Task");
+        // System.out.println("4. Complete Task");
         System.out.println("5. Settings");
         System.out.println("6. View Status"); // New option for viewing status
         System.out.println("7. Edit Task"); // New option for editing tasks
@@ -45,7 +45,12 @@ public class ConsoleApp {
     }
 
     private int getUserChoice() {
-        return Integer.parseInt(scanner.nextLine());
+        try {
+            return Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+            return -1; // Return an invalid choice to handle in the main loop
+        }
     }
 
     private void handleUserChoice(int choice) {
@@ -53,11 +58,12 @@ public class ConsoleApp {
             case 1 -> viewTasks();
             case 2 -> addTask();
             case 3 -> startTask();
-            case 4 -> completeTask();
+            // case 4 -> completeTask();
             case 5 -> showSettings();
             case 6 -> viewStatus(); // Handle view status
             case 7 -> editTask(); // Handle edit task
             case 8 -> exitApplication();
+            case -1 -> {} // Do nothing for invalid input
             default -> System.out.println("Invalid choice. Please try again.");
         }
     }
@@ -114,18 +120,6 @@ public class ConsoleApp {
         }
     }
 
-    private void completeTask() {
-        System.out.print("Enter task number to complete: ");
-        int taskNumber = Integer.parseInt(scanner.nextLine()) - 1;
-        Task task = taskManager.getTaskByIndex(taskNumber);
-        if (task != null) {
-            taskManager.completeTask(task);
-            System.out.println("Task completed successfully.");
-        } else {
-            System.out.println("Invalid task number.");
-        }
-    }
-
     private void showSettings() {
         Settings settings = services.getSettings();
         System.out.printf("Current Settings:%nWork Interval: %d minutes%nShort Break Interval: %d minutes%nLong Break Interval: %d minutes%nSessions Until Long Break: %d%n",
@@ -168,8 +162,7 @@ public class ConsoleApp {
             if (choice == 2) {
                 taskManager.resetTask(currentTask);
                 System.out.println("Task reset successfully.");
-            }
-            else if (choice == 1) {
+            } else if (choice == 1) {
                 viewStatus();
             }
         } else if (taskManager.isOnBreak()) {
@@ -184,8 +177,7 @@ public class ConsoleApp {
             if (choice == 2) {
                 taskManager.endBreak();
                 System.out.println("Break ended successfully.");
-            } 
-            else if (choice == 1) {
+            } else if (choice == 1) {
                 viewStatus();
             }
         } else {

@@ -21,7 +21,7 @@ public class ServiceContainer {
         this.dataManager = new DataManager();
         this.settings = dataManager.loadSettings();
         this.analyticsService = new AnalyticsService(dataManager);
-        this.taskManager = new TaskManager(dataManager, analyticsService);
+        this.taskManager = new TaskManager(dataManager, analyticsService, settings);
     }
 
     /**

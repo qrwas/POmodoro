@@ -23,7 +23,7 @@ public class TaskManagerTest {
     public void setUp() {
         dataManager = new TestDataManager();
         analyticsService = new AnalyticsService(dataManager);
-        taskManager = new TaskManager(dataManager, analyticsService);
+        taskManager = new TaskManager(dataManager, analyticsService, null);
     }
 
     /**
