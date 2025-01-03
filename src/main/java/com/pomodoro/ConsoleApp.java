@@ -157,23 +157,36 @@ public class ConsoleApp {
     private void viewStatus() {
         Task currentTask = taskManager.getCurrentActiveTask();
         if (currentTask != null) {
-            System.out.printf("Current Task: %s (Priority: %d)%n", currentTask.getName(), currentTask.getPriority());
-            System.out.println("1. Reset Task");
-            System.out.println("2. Return to Menu");
+            long remainingTime = taskManager.getRemainingTaskTime();
+            long minutes = remainingTime / 60;
+            long seconds = remainingTime % 60;
+            System.out.printf("Current Task: %s (Priority: %d, Remaining Time: %d minutes %d seconds)%n", currentTask.getName(), currentTask.getPriority(), minutes, seconds);
+            System.out.println("1. Update status");
+            System.out.println("2. Reset Task");
+            System.out.println("3. Return to Menu");
             int choice = getUserChoice();
-            if (choice == 1) {
+            if (choice == 2) {
                 taskManager.resetTask(currentTask);
                 System.out.println("Task reset successfully.");
             }
+            else if (choice == 1) {
+                viewStatus();
+            }
         } else if (taskManager.isOnBreak()) {
             int remainingTime = taskManager.getRemainingBreakTime();
-            System.out.printf("On Break: %d minutes remaining%n", remainingTime / 60);
-            System.out.println("1. End Break");
-            System.out.println("2. Return to Menu");
+            long minutes = remainingTime / 60;
+            long seconds = remainingTime % 60;
+            System.out.printf("On Break: %d minutes %d seconds remaining%n", minutes, seconds);
+            System.out.println("1. Update status");
+            System.out.println("2. End Break");
+            System.out.println("3. Return to Menu");
             int choice = getUserChoice();
-            if (choice == 1) {
+            if (choice == 2) {
                 taskManager.endBreak();
                 System.out.println("Break ended successfully.");
+            } 
+            else if (choice == 1) {
+                viewStatus();
             }
         } else {
             System.out.println("No active tasks or breaks.");
