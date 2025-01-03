@@ -88,7 +88,7 @@ public class ServiceContainerTest {
         assertEquals("Work interval should be preserved", 
             1500, newContainer.getSettings().getWorkInterval());
         assertEquals("Task should be preserved", 
-            "Test Task", newContainer.getTaskManager().getAllTasks().get(0).getName());
+            "Test Task", newContainer.getTaskManager().getAllTasks().get(newContainer.getTaskManager().getAllTasks().size()-1).getName());
     }
 
     /**
