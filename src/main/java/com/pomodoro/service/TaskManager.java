@@ -3,6 +3,8 @@ package com.pomodoro.service;
 import com.pomodoro.model.Task;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Manages tasks in the Pomodoro application.
@@ -14,6 +16,7 @@ public class TaskManager {
     private List<Task> tasks = new ArrayList<>();
     private Task currentActiveTask;
     private List<TaskChangeListener> listeners = new ArrayList<>();
+    private Timer taskTimer;
 
     /**
      * Creates a new TaskManager instance.
@@ -129,15 +132,30 @@ public class TaskManager {
         task.setInProgress(true);
         task.setCompleted(false);
         notifyTaskStatusChanged(task);
+
+        // Cancel any existing timer
+        if (taskTimer != null) {
+            taskTimer.cancel();
+        }
+
+        // Schedule a new timer to complete the task when time is up
+        taskTimer = new Timer();
+        taskTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                completeTask(task);
+            }
+        }, duration * 1000L); // Convert seconds to milliseconds
     }
 
     /**
-     * Starts a task with a default duration of 25 minutes.
+     * Starts a task with a default duration from settings.
      *
      * @param task Task to start
      */
     public void startTask(Task task) {
-        startTask(task, 25 * 60); // default 25 minutes
+        int defaultDuration = 25 * 60; // default 25 minutes
+        startTask(task, defaultDuration);
     }
 
     /**
@@ -164,6 +182,12 @@ public class TaskManager {
         }
         notifyTaskStatusChanged(task);
         analyticsService.recordPomodoro(task, task.getPlannedDuration());
+
+        // Cancel the timer if the task is completed manually
+        if (taskTimer != null) {
+            taskTimer.cancel();
+            taskTimer = null;
+        }
     }
 
     /**
