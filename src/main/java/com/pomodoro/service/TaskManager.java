@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.awt.Toolkit;
 
 /**
  * Manages tasks in the Pomodoro application.
@@ -199,6 +200,9 @@ public class TaskManager {
             taskTimer = null;
         }
 
+        // Play system sound for task completion
+        Toolkit.getDefaultToolkit().beep();
+
         // Start a break automatically after completing a task
         startBreak(settings.getShortBreakInterval());
     }
@@ -353,6 +357,9 @@ public class TaskManager {
             taskTimer.cancel();
             taskTimer = null;
         }
+
+        // Play system sound for break end
+        Toolkit.getDefaultToolkit().beep();
     }
 
     public long getRemainingTaskTime() {
